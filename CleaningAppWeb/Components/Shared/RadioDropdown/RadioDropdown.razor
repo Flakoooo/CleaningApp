@@ -1,0 +1,56 @@
+﻿@using CleaningAppWeb.Components.Models
+@using CleaningAppWeb.Components.Services
+@typeparam T where T : SelectableItem
+@inherits PaginationLoader
+
+<div class="w-100 gap-1" tabindex="-1">
+    @if (!string.IsNullOrWhiteSpace(Label))
+    {
+        <label class="form-label m-0">
+            @Label
+        </label>
+    }
+    <div style="position: relative;">
+        <div class="w-100">
+            <div class="input-group">
+                <input type="text"
+                       @ref="_inputRef"
+                       @oninput="@(async e => await OnSearch(e.Value?.ToString()))"
+                       value="@Value?.GetDisplayInfo()"
+                       placeholder="@Placeholder"
+                       class="form-control rounded-end"
+                       disabled="@IsDisabled"
+                       @onclick="OpenDropdown"
+                       @onfocus="OpenDropdown"
+                       @onkeydown="OnInputKeyDown" />
+            </div>
+        </div>
+
+        @if (!IsDisabled && !_isOpen)
+        {
+            <i class="input-dropdown-icon bi bi-chevron-down" @onclick="ToggleDropdown"></i>
+        }
+
+        <div @ref="_tableContainer" 
+             class="input-dropdown-list-conatiner list-group dropdown-list"
+             style="@(_isOpen && _values.Any() ? string.Empty : "display: none;")"
+             @onclick:stopPropagation>
+            @foreach (var value in _values)
+            {
+                <div @onclick="@(() => OnElementChange(value))"
+                     class="input-dropdown-list-element list-group-item list-group-item-action"
+                     tabindex="-1">
+                    <div class="d-flex">
+                        <input type="radio"
+                               @onchange="@(() => OnElementChange(value))"
+                               checked="@IsItemSelected(value)"
+                               @onclick:stopPropagation
+                               name="@_radioGroupName"
+                               class="form-check-input" />
+                        <span class="form-check-label ms-2">@value.GetDisplayInfo()</span>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>

@@ -1,0 +1,21 @@
+﻿<div class="d-flex flex-column w-100 h-100">
+    @if (!string.IsNullOrWhiteSpace(Label))
+    {
+        <label class="form-label m-0">
+            @Label
+        </label>
+    }
+    <div class="input-group h-100">
+        <textarea value="@Value"
+                  placeholder="@Placeholder"
+                  @oninput="@OnInputChanged"
+                  class="form-control rounded-end @(_showError ? "is-invalid" : string.Empty)"
+                  style="@Style"
+                  @attributes="GetInputAttributes()">
+        </textarea>
+        @if (_showError)
+        {
+            <span class="invalid-feedback">@ErrorMessage</span>
+        }
+    </div>
+</div>

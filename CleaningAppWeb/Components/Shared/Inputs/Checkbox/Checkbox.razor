@@ -1,0 +1,45 @@
+﻿<div class="d-flex">
+    <input type="@InputType.Checkbox.ToString().ToLower()"
+           checked="@Checked"
+           class="form-check-input"
+           @onclick="() => SelectCheckbox()" />
+    @if (!string.IsNullOrWhiteSpace(DisplayText))
+    {
+        <span class="form-check-label ms-2 @DisplayTextCustomClass">
+            @DisplayText
+        </span>
+    }
+</div>
+
+<style>
+    .form-check-input:checked {
+        background-color: #312B2B;
+        border-color: #312B2B;
+    }
+
+    .form-check-input:focus {
+        border-color: #312B2B;
+        outline: 0;
+        box-shadow: 0 0 0 .25rem #6B6B6B4D;
+    }
+</style>
+
+@code {
+    [Parameter]
+    public bool Checked { get; set; } = false;
+
+    [Parameter]
+    public EventCallback OnClick { get; set; }
+
+    [Parameter]
+    public string DisplayText { get; set; } = string.Empty;
+
+    [Parameter]
+    public string DisplayTextCustomClass { get; set; } = string.Empty;
+
+    private async Task SelectCheckbox()
+    {
+        if (OnClick.HasDelegate)
+            await OnClick.InvokeAsync();
+    }
+}

@@ -1,0 +1,49 @@
+﻿@using CleaningAppWeb.Components.Models
+@using CleaningAppWeb.Components.Services
+@using CleaningAppWeb.Components.Shared.Inputs.Checkbox
+@typeparam T where T : SelectableItem
+@inherits PaginationLoader
+
+<div class="w-100" tabindex="-1">
+    @if (!string.IsNullOrWhiteSpace(Label))
+    {
+        <label class="form-label m-0">
+            @Label
+        </label>
+    }
+    <div style="position: relative;">
+        <div class="w-100">
+            <div class="input-group">
+                <input type="text"
+                       @ref="_inputRef"
+                       @oninput="@(async e => await OnSearch(e))"
+                       placeholder="@($"{Placeholder}{(SelectedValues.Count > 0 ? $" ({SelectedValues.Count})" : "")}")"
+                       class="form-control"
+                       @attributes="GetInputAttributes()"
+                       @onclick="OpenDropdown"
+                       @onfocus="OpenDropdown"
+                       @onkeydown="OnInputKeyDown" />
+            </div>
+        </div>
+
+        @if (!_isOpen)
+        {
+            <i class="input-dropdown-icon bi bi-chevron-down" @onclick="ToggleDropdown"></i>
+        }
+
+        <div @ref="_tableContainer"
+             class="input-dropdown-icon list-group dropdown-list"
+             style="@(_isOpen && _values.Any() ? string.Empty : "display: none;")"
+             @onclick:stopPropagation="true">
+            @foreach (var value in _values)
+            {
+                <div @onclick="@(() => OnItemClick(value))"
+                     class="input-dropdown-list-element list-group-item list-group-item-action"
+                     tabindex="-1">
+                    <Checkbox Checked="SelectedValues.Contains(value)"
+                              DisplayText="@value.GetDisplayInfo()" />
+                </div>
+            }
+        </div>
+    </div>
+</div>

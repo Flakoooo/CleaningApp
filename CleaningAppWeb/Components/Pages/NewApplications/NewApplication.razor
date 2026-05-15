@@ -1,0 +1,187 @@
+﻿@page "/new-application"
+@using CleaningAppWeb.Components.Models
+@using CleaningAppWeb.Components.Shared.Button
+@using CleaningAppWeb.Components.Shared.CheckboxDropdown
+@using CleaningAppWeb.Components.Shared.Inputs
+@using CleaningAppWeb.Components.Shared.Inputs.Checkbox
+@using CleaningAppWeb.Components.Shared.Inputs.Input
+@using CleaningAppWeb.Components.Shared.Inputs.TextArea
+@using CleaningAppWeb.Components.Shared.RadioDropdown
+@using CleaningAppWeb.Domain.DTOs
+@using System.Globalization
+@rendermode InteractiveServer
+
+<div class="new-application-page">
+    <div class="new-application-card">
+        <div class="d-flex flex-column gap-2">
+            <Checkbox DisplayText="Заполнить поля на основе данных пользователя" 
+                      Checked="_setUserData" 
+                      OnClick="SetUserData" />
+            <div class="d-flex flex-row gap-5">
+                <Input Label="Имя" Placeholder="Введите имя" IsDisabled="_setUserData" />
+                <Input Label="Фамилия" Placeholder="Введите фамилию" IsDisabled="_setUserData" />
+                <Input Label="Отчество" Placeholder="Введите отчество" IsDisabled="_setUserData" />
+            </div>
+            <div class="d-flex flex-row gap-4">
+                <Input Label="Контактный номер" Placeholder="Введите номер телефона" IsDisabled="_setUserData" />
+                <RadioDropdown T="OfficeDTO" Label="Адрес офиса" Placeholder="Выберите адрес офиса" DebounceDelay="500" IsDisabled="_setUserData" />
+            </div>
+        </div>
+        <div class="d-flex flex-row w-100 gap-4">
+            <div class="d-flex flex-column w-50 gap-2">
+                <CheckboxDropdown T="RoomDTO" Label="Кабинеты" Placeholder="Выберите кабинеты" DebounceDelay="500"  />
+                <Input InputType="InputType.Date" 
+                       Label="Дата" 
+                       Placeholder="Введите дату уборки" 
+                       Value="@_selectedDateString"
+                       ValueChanged="SelectDate" />
+                <RadioDropdown T="ValueSelectableItem<TimeOnly>" 
+                               AllValues="_availableTime.ToList()" 
+                               Label="Время" 
+                               Placeholder="Выберите время уборки" 
+                               Value="_selectedTime"
+                               ValueChanged="SelectTime" />
+                <TextArea Label="Комментарий (при необходимости)" 
+                          Placeholder="Введите комментарий"
+                          Style="resize: none; height: 14vh;" />
+            </div>
+            <div class="d-flex flex-column w-50">
+                <div style="color: #312B2B;">Услуги</div>
+                <div class="overflow-y-auto d-flex flex-column ps-2">
+                    @if (AvailableServices.Count == 0)
+                    {
+                        <div style="color: #312B2B;">
+                            Доступные услуги отсутствуют
+                        </div>
+                    }
+                    else
+                    {
+                        @foreach (var service in AvailableServices)
+                        {
+                            <Checkbox DisplayText="@service.Name"
+                                      Checked="_selectedServices.Contains(service.Id)"
+                                      OnClick="() => SelectService(service.Id)" />
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="w-100 d-flex justify-content-end">
+            <Button Text="Создать" Style="width: 18%;" />
+        </div>
+    </div>
+</div>
+
+<style>
+    .new-application-page {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    
+    .new-application-card {
+        width: 65%;
+        height: 75%;
+        background: #F6D200;
+        border-radius: 16px;
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+        overflow-y: auto;
+        gap: 8px;
+    }
+</style>
+
+@code {
+    private List<ServiceDTO> AvailableServices { get; set; } = [];
+
+    private bool _setUserData = false;
+
+    private string _selectedDateString = string.Empty;
+    private DateOnly _selectedDate;
+
+    private HashSet<ValueSelectableItem<TimeOnly>> _availableTime = [];
+    private ValueSelectableItem<TimeOnly>? _selectedTime;
+
+    private HashSet<Guid> _selectedServices = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        _availableTime = [ new ValueSelectableItem<TimeOnly>(new TimeOnly(), "Сперва выберите дату") ];
+    }
+
+    private void SetUserData()
+    {
+        _setUserData = !_setUserData;
+        if (_setUserData)
+        {
+
+        }
+        else
+        {
+
+        }
+    }
+
+    private void SelectService(Guid serviceId)
+    {
+        if (!_selectedServices.Add(serviceId))
+            _selectedServices.Remove(serviceId);
+    }
+
+    private void SelectDate(string date)
+    {
+        if (string.IsNullOrWhiteSpace(date))
+        {
+            _selectedDateString = string.Empty;
+            _selectedDate = DateOnly.MinValue;
+            _availableTime = [new ValueSelectableItem<TimeOnly>(new TimeOnly(), "Сперва выберите дату")];
+            return;
+        }
+
+        var currentDateTime = DateTime.Now;
+
+        _selectedDate = DateOnly.ParseExact(date, "yyyy-MM-dd", CultureInfo.InvariantCulture);
+
+        //TODOO: заменить на вывод ошибки
+        if (_selectedDate < DateOnly.FromDateTime(currentDateTime))
+        {
+            _selectedDateString = string.Empty;
+            _selectedDate = DateOnly.MinValue;
+            _availableTime = [new ValueSelectableItem<TimeOnly>(new TimeOnly(), "Сперва выберите дату")];
+            return;
+        }
+
+        GetAvailableTime();
+    }
+
+    private void GetAvailableTime()
+    {
+        var currentDateTime = DateTime.Now;
+
+        bool selectCurrentDay = DateOnly.FromDateTime(currentDateTime) == _selectedDate;
+
+        var newAvailableTimes = new HashSet<ValueSelectableItem<TimeOnly>>();
+        for (int i = 9; i < 17; ++i)
+        {
+            if (selectCurrentDay && currentDateTime.Hour >= i) continue;
+
+            newAvailableTimes.Add(new ValueSelectableItem<TimeOnly>(new TimeOnly(i, 0, 0), $"{i}:00"));
+        }
+
+        if (newAvailableTimes.Count == 0)
+            newAvailableTimes.Add(new ValueSelectableItem<TimeOnly>(new TimeOnly(), "На данную дату нет доступного времени"));
+
+        _availableTime = newAvailableTimes.ToHashSet();
+    }
+
+    private void SelectTime(ValueSelectableItem<TimeOnly> value)
+    {
+        if (value.Value.Hour is < 9 or > 16)
+            return;
+
+        _selectedTime = value;
+    }
+}

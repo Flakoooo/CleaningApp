@@ -1,0 +1,33 @@
+﻿<div class="w-@Width">
+    @if (!string.IsNullOrWhiteSpace(Label))
+    {
+        <label class="form-label m-0">
+            @Label
+        </label>
+    }
+    <div class="input-group">
+        @if (!string.IsNullOrWhiteSpace(IconStyle))
+        {
+            <span class="fs-6 input-group-text">
+                @if (IconStyle.Contains("bi"))
+                {
+                    <i class="bi @IconStyle"></i>
+                }
+                else
+                {
+                    @IconStyle
+                }
+            </span>
+        }
+        <input type="@InputType.ToString().ToLower()"
+               value="@Value"
+               placeholder="@Placeholder"
+               @oninput="@OnInputChanged"
+               class="form-control rounded-end @CustomClass @(_showError ? "is-invalid" : string.Empty)"
+               @attributes="GetInputAttributes()" />
+        @if (_showError && !string.IsNullOrWhiteSpace(ErrorMessage))
+        {
+            <span class="invalid-feedback">@ErrorMessage</span>
+        }
+    </div>
+</div>

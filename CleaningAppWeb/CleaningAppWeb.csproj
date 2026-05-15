@@ -23,10 +23,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Components\Shared\" />
     <Folder Include="Data\Migrations\" />
     <Folder Include="Data\Services\" />
-    <Folder Include="Domain\DTOs\" />
   </ItemGroup>
 
 </Project>
