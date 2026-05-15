@@ -1,7 +1,11 @@
 ﻿@inherits LayoutComponentBase
+@inject NavigationManager Navigation
 
-<Navigation />
-<div style="height: 90%">
+@if (!IsLoadingPage)
+{
+    <Navigation />
+}
+<div style="height: @(IsLoadingPage ? "100" : "90")%">
     @Body
 </div>
 
@@ -10,3 +14,7 @@
     <a href="." class="reload">Reload</a>
     <span class="dismiss">🗙</span>
 </div>
+
+@code {
+    private bool IsLoadingPage => Navigation.Uri.Contains("/login", StringComparison.OrdinalIgnoreCase);
+}

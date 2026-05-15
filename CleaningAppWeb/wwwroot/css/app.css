@@ -53,3 +53,10 @@ html, body {
         outline: 0;
         box-shadow: 0 0 0 .25rem #6B6B6B4D;
     }
+
+.input-group-text {
+    color: #FFFFFF;
+    border: 1px solid #312B2B;
+    background-color: #312B2B;
+    padding: 8px;
+}

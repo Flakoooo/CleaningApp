@@ -1,5 +1,6 @@
 ﻿@using CleaningAppWeb.Components.Models
 @using CleaningAppWeb.Components.Services
+@using CleaningAppWeb.Components.Shared.Inputs
 @typeparam T where T : SelectableItem
 @inherits PaginationLoader
 
@@ -41,7 +42,7 @@
                      class="input-dropdown-list-element list-group-item list-group-item-action"
                      tabindex="-1">
                     <div class="d-flex">
-                        <input type="radio"
+                        <input type="@InputType.Radio.ToString().ToLower()"
                                @onchange="@(() => OnElementChange(value))"
                                checked="@IsItemSelected(value)"
                                @onclick:stopPropagation
