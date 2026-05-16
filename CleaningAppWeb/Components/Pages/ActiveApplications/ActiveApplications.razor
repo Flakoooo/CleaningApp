@@ -1,0 +1,38 @@
+﻿@page "/active-applications"
+@using CleaningAppWeb.Components.Models
+@using CleaningAppWeb.Components.Shared.ApplicationCard
+@using CleaningAppWeb.Components.Shared.Button
+@using CleaningAppWeb.Components.Shared.CheckboxFilter
+@using CleaningAppWeb.Components.Shared.Inputs.Number
+@using CleaningAppWeb.Domain.DTOs
+@using CleaningAppWeb.Domain.Enums
+
+<div class="active-applications-page">
+    <div class="acitve-applications-card">
+        <div class="active-applications-list">
+            <ApplicationCard />
+        </div>
+        <div class="active-applications-filter">
+            <CheckboxFilter T="ValueSelectableItem<CleaningApplicationStatus>" Label="Статус заявки" />
+            <CheckboxFilter T="ValueSelectableItem<ServiceDTO>" Label="Тип услуги" />
+            <Number T="uint" Label="Количество кабинетов" Placeholder="Введите количество кабентов" />
+            <CheckboxFilter T="ValueSelectableItem<OfficeDTO>" Label="Адрес" />
+            <CheckboxFilter T="ValueSelectableItem<TimeOnly>" 
+                            AllValues="_timeFilter" 
+                            Label="Время" />
+            <Button Width="width: 100%;" Text="Сбросить фильтры" />
+        </div>
+    </div>
+</div>
+
+@code {
+    private List<ValueSelectableItem<TimeOnly>> _timeFilter = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        for (int i = 9; i < 17; ++i)
+        {
+            _timeFilter.Add(new ValueSelectableItem<TimeOnly>(new TimeOnly(i, 0, 0), $"{i}:00"));
+        }
+    }
+}

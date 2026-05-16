@@ -1,0 +1,25 @@
+﻿@typeparam T where T : struct, IComparable, IConvertible, IComparable<T>, IEquatable<T>
+
+<div class="w-100">
+    @if (!string.IsNullOrWhiteSpace(Label))
+    {
+        <label class="fs-5 form-label m-0">
+            @Label
+        </label>
+    }
+    <div class="input-group">
+        <input type="number"
+               min="@MinValue"
+               max="@MaxValue"
+               placeholder="@Placeholder"
+               @bind:get="Value"
+               @bind:set="OnInputChanged"
+               @bind:event="oninput"
+               class="form-control rounded-end @(_showError ? "is-invalid" : string.Empty)"
+               @attributes="GetInputAttributes()" />
+        @if (_showError)
+        {
+            <span class="invalid-feedback">@ErrorMessage</span>
+        }
+        </div>
+</div>

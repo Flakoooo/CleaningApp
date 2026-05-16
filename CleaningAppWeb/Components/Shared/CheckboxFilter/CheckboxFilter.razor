@@ -1,0 +1,24 @@
+﻿@using CleaningAppWeb.Components.Models
+@using CleaningAppWeb.Components.Services
+@using CleaningAppWeb.Components.Shared.Inputs.Checkbox
+@using CleaningAppWeb.Components.Shared.Inputs.Input
+@typeparam T where T : SelectableItem
+@inherits PaginationLoader
+
+<div class="w-100">
+    @if (!string.IsNullOrWhiteSpace(Label))
+    {
+        <span class="fs-5">
+            @Label
+        </span>
+    }
+    <div class="filter-choices">
+        @foreach (var value in _values)
+        {
+            <div class="filter-choice px-2 py-1 rounded-1 fs-5" @onclick="() => SelectValue(value)">
+                <Checkbox Checked="@SelectedValues.Contains(value)"
+                          DisplayText="@value.GetDisplayInfo()" />
+            </div>
+        }
+    </div>
+</div>

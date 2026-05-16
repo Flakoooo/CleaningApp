@@ -1,0 +1,12 @@
+﻿.filter-choices {
+    max-height: 18vh;
+    overflow-y: auto;
+}
+
+.filter-choice {
+    cursor: pointer;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+}

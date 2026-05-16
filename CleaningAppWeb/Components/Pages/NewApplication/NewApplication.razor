@@ -36,7 +36,7 @@
                        Value="@_selectedDateString"
                        ValueChanged="SelectDate" />
                 <RadioDropdown T="ValueSelectableItem<TimeOnly>" 
-                               AllValues="_availableTime.ToList()" 
+                               AllValues="_availableTime" 
                                Label="Время" 
                                Placeholder="Выберите время уборки" 
                                Value="_selectedTime"
@@ -80,7 +80,7 @@
     private string _selectedDateString = string.Empty;
     private DateOnly _selectedDate;
 
-    private HashSet<ValueSelectableItem<TimeOnly>> _availableTime = [];
+    private List<ValueSelectableItem<TimeOnly>> _availableTime = [];
     private ValueSelectableItem<TimeOnly>? _selectedTime;
 
     private HashSet<Guid> _selectedServices = [];
@@ -141,7 +141,7 @@
 
         bool selectCurrentDay = DateOnly.FromDateTime(currentDateTime) == _selectedDate;
 
-        var newAvailableTimes = new HashSet<ValueSelectableItem<TimeOnly>>();
+        var newAvailableTimes = new List<ValueSelectableItem<TimeOnly>>();
         for (int i = 9; i < 17; ++i)
         {
             if (selectCurrentDay && currentDateTime.Hour >= i) continue;
@@ -152,7 +152,7 @@
         if (newAvailableTimes.Count == 0)
             newAvailableTimes.Add(new ValueSelectableItem<TimeOnly>(new TimeOnly(), "На данную дату нет доступного времени"));
 
-        _availableTime = newAvailableTimes.ToHashSet();
+        _availableTime = newAvailableTimes;
     }
 
     private void SelectTime(ValueSelectableItem<TimeOnly> value)
