@@ -1,0 +1,55 @@
+﻿@using CleaningAppWeb.Domain.DTOs
+<div class="application">
+    <div class="d-flex flex-column p-3 pb-2 block-info-border-top">
+        <div class="application-main-text d-flex flex-row gap-1">
+            <i class="bi bi-building-fill"></i>
+            Уборка в Adress
+        </div>
+        <div class="application-sub-text d-flex flex-row gap-1">
+            <i class="bi bi-clock-fill"></i>
+            @{
+                var currentDate = DateTime.Now;
+                <div class="gap-2 d-flex flex-row">
+                    <div>@DateOnly.FromDateTime(currentDate).ToString("dd.MM.yyyy")</div>
+                    <div>@TimeOnly.FromDateTime(currentDate).ToString("HH:mm")</div>
+                </div>
+            }
+        </div>
+        <div class="application-main-text">
+            Статус: StatusType
+        </div>
+    </div>
+    <div class="w-100 d-flex flex-row py-1 gap-2 px-3 block-info-border-middle">
+        <div class="application-main-text d-flex flex-row gap-1">
+            <i class="bi bi-person-fill"></i>
+            @(true ? "Исполнитель:" : "Заказчик:")
+        </div>
+        <div class="application-sub-text">Отчество И.Ф.</div>
+    </div>
+    <div class="w-100 d-flex flex-row py-1 @(true ? "block-info-border-bottom" : "block-info-border-middle")">
+        <div class="application-info-count">
+            <span class="application-main-text">Кабинетов:</span>
+            <span class="application-sub-text">XX</span>
+        </div>
+        <div class="application-info-count">
+            <span class="application-main-text">Услуг:</span>
+            <span class="application-sub-text">XX</span>
+        </div>
+    </div>
+    <div class="w-100 d-flex flex-row justify-content-center py-1 block-info-border-bottom">
+        <div class="application-main-text d-flex flex-row gap-1">
+            <i class="bi bi-star-half"></i>
+            Можно оценить работу!
+        </div>
+    </div>
+    <div class="w-100 d-flex flex-row justify-content-center py-1 block-info-border-bottom">
+        <div class="application-main-text d-flex flex-row gap-1">
+            Оценка:
+            <i class="bi bi-star-fill"></i>
+            <i class="bi bi-star-fill"></i>
+            <i class="bi bi-star-fill"></i>
+            <i class="bi bi-star"></i>
+            <i class="bi bi-star"></i>
+        </div>
+    </div>
+</div>

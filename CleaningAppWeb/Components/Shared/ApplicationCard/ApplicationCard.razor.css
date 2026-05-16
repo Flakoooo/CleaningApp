@@ -1,0 +1,35 @@
+﻿.application {
+    background: #F6D200;
+    border-radius: 8px;
+}
+
+.application-info-count {
+    width: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+}
+
+.application-main-text {
+    color: #312B2B;
+    font-size: 24px;
+}
+
+.application-sub-text {
+    color: #6B6B6B;
+    font-size: 24px;
+}
+
+.block-info-border-top {
+    border-bottom: 1px solid #312B2B;
+}
+
+.block-info-border-middle {
+    border-top: 1px solid #312B2B;
+    border-bottom: 1px solid #312B2B;
+}
+
+.block-info-border-bottom {
+    border-top: 1px solid #312B2B;
+}

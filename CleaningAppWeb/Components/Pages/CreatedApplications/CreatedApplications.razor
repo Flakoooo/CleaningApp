@@ -1,0 +1,48 @@
+﻿@page "/applications"
+@using CleaningAppWeb.Components.Shared.ApplicationCard
+
+<div class="w-100 h-100 d-flex flex-row">
+    <div class="application-side">
+        <div class="applications-card">
+            <div class="fs-2 d-flex justify-content-center align-items-center" style="height: 10%;">Активные заявки</div>
+            <div class="applications-card-list">
+                <ApplicationCard />
+            </div>
+        </div>
+    </div>
+    <div class="application-side">
+        <div class="applications-card">
+            <div class="fs-2 d-flex justify-content-center align-items-center" style="height: 10%;">История заявок</div>
+            <div class="applications-card-list">
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .application-side {
+        width: 50%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .applications-card {
+        height: 80%;
+        width: 75%;
+        background: #F6D200;
+        border-radius: 16px;
+        padding: 8px 12px 12px 12px;
+    }
+
+    .applications-card-list {
+        background: #FFFFFF;
+        height: 90%;
+        padding: 8px;
+        border-radius: 8px;
+        overflow-y: auto;
+        gap: 10px;
+    }
+</style>
