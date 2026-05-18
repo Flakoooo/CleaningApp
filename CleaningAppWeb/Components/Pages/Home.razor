@@ -1,7 +1,27 @@
 ﻿@page "/"
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@using System.Security.Claims
+@attribute [Authorize]
+@inject NavigationManager Navigation
+@inject AuthenticationStateProvider AuthProvider
 
-<PageTitle>Home</PageTitle>
+@code {
+    private bool _hasRedirected = false;
 
-<h1>Hello, world!</h1>
+    protected override async Task OnInitializedAsync()
+    {
+        if (_hasRedirected) return;
+        _hasRedirected = true;
 
-Welcome to your new app.
+        var authState = await AuthProvider.GetAuthenticationStateAsync();
+        var role = authState.User.FindFirst(ClaimTypes.Role)?.Value;
+
+        if (role is "Officer")
+            Navigation.NavigateTo("/created-applications", true);
+        else if (role is "Cleaner")
+            Navigation.NavigateTo("/active-applications", true);
+        else
+            Navigation.NavigateTo("/login", true);
+    }
+}

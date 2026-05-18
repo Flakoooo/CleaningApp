@@ -1,4 +1,4 @@
-﻿<div style="width: @Width%;">
+﻿<div class="w-100">
     @if (!string.IsNullOrWhiteSpace(Label))
     {
         <label class="form-label m-0">
@@ -23,11 +23,11 @@
                value="@Value"
                placeholder="@Placeholder"
                @oninput="@OnInputChanged"
-               class="form-control rounded-end @CustomClass @(_showError ? "is-invalid" : string.Empty)"
+               class="form-control rounded-end @(_showError ? "is-invalid" : string.Empty)"
                @attributes="GetInputAttributes()" />
-        @if (_showError && !string.IsNullOrWhiteSpace(ErrorMessage))
+        @if (_showError)
         {
-            <span class="invalid-feedback">@ErrorMessage</span>
+            <span class="invalid-feedback m-0">@ErrorMessage</span>
         }
     </div>
 </div>

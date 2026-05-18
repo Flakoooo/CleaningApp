@@ -60,3 +60,7 @@ html, body {
     background-color: #312B2B;
     padding: 8px;
 }
+
+.invalid-feedback {
+    color: #312B2B;
+}

@@ -1,4 +1,5 @@
 ﻿@page "/new-application"
+@attribute [Authorize(Roles = "Officer")]
 @using CleaningAppWeb.Components.Models
 @using CleaningAppWeb.Components.Shared.Button
 @using CleaningAppWeb.Components.Shared.CheckboxDropdown
@@ -9,6 +10,7 @@
 @using CleaningAppWeb.Components.Shared.RadioDropdown
 @using CleaningAppWeb.Domain.DTOs
 @using System.Globalization
+@using Microsoft.AspNetCore.Authorization
 @rendermode InteractiveServer
 
 <div class="new-application-page">
@@ -157,8 +159,7 @@
 
     private void SelectTime(ValueSelectableItem<TimeOnly> value)
     {
-        if (value.Value.Hour is < 9 or > 16)
-            return;
+        if (value.Value.Hour is < 9 or > 16) return;
 
         _selectedTime = value;
     }

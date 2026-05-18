@@ -1,20 +1,12 @@
 ﻿using CleaningAppWeb.Domain.Enums;
+using Microsoft.AspNetCore.Identity;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CleaningAppWeb.Domain.Entities
 {
     [Table("users")]
-    public class User
+    public class User : IdentityUser<Guid>
     {
-        [Column("id")]
-        public Guid Id { get; set; } = Guid.NewGuid();
-
-        [Column("login")]
-        public required string Login { get; set; }
-
-        [Column("password_hash")]
-        public required string PasswordHash { get; set; }
-
         [Column("role")]
         public required RoleType Role { get; set; }
 
@@ -38,20 +30,20 @@ namespace CleaningAppWeb.Domain.Entities
 
 
         public static User Create(
-            string login, string password, RoleType role,
+            string userName, RoleType role,
             string firstName, string lastName, string patronymic,
             string telephoneNumber,
             Guid? id = null
-        ) => new()
+        ) => new User
         {
             Id = id ?? Guid.NewGuid(),
-            Login = login,
-            PasswordHash = BCrypt.Net.BCrypt.HashPassword(password),
+            UserName = userName,
             Role = role,
             FirstName = firstName,
             LastName = lastName,
             Patronymic = patronymic,
             TelephoneNumber = telephoneNumber
         };
+
     }
 }

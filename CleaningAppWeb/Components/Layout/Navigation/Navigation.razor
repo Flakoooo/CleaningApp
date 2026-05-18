@@ -1,0 +1,86 @@
+﻿@using CleaningAppWeb.Components.Shared.Button
+@using CleaningAppWeb.Domain.Enums
+@using Microsoft.AspNetCore.Components.Authorization
+@using System.Security.Claims
+@rendermode InteractiveServer
+@implements IDisposable
+
+<div class="navigation">
+    <div class="navigation-page-name">
+        @_pageTitle
+    </div>
+    <div class="navigation-nav-buttons">
+        @if (_currentRole is RoleType.Officer)
+        {
+            <Button Text="Созданные заявки" OnButtonClick="@(() => NavigateTo("/created-applications"))" />
+            <Button Text="Создание заявки" OnButtonClick="@(() => NavigateTo("/new-application"))" />
+        }
+        else if (_currentRole is RoleType.Cleaner)
+        {
+            <Button Text="Активные заявки" OnButtonClick="@(() => NavigateTo("/active-applications"))" />
+            <Button Text="История заявок" />
+        }
+    </div>
+    <div class="navigation-user-fullname">
+        @_userFullname
+    </div>
+    <div class="navigation-exit-button">
+        <Button Style="width: 90%;" Text="Выход" OnButtonClick="Logout" />
+    </div>
+</div>
+
+@code {
+    [Inject]
+    private AuthenticationStateProvider AuthProvider { get; set; } = null!;
+
+    [Inject]
+    private NavigationManager NavigationManager { get; set; } = null!;
+
+    private string _pageTitle = string.Empty;
+
+    private RoleType? _currentRole = null;
+    private string _userFullname = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        NavigationManager.LocationChanged += OnLocationChanged;
+
+        UpdatePageTitle();
+
+        var user = (await AuthProvider.GetAuthenticationStateAsync()).User;
+
+        if (Enum.TryParse(user.FindFirst(ClaimTypes.Role)?.Value ?? string.Empty, true, out RoleType role))
+            _currentRole = role;
+
+        var firstName = user.FindFirst("FirstName")?.Value;
+        var lastName = user.FindFirst("LastName")?.Value;
+        var patronymic = user.FindFirst("Patronymic")?.Value;
+
+        _userFullname = $"{lastName} {firstName} {patronymic}";
+    }
+
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        UpdatePageTitle();
+        StateHasChanged();
+    }
+
+    private void UpdatePageTitle()
+    {
+        var path = NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
+        
+        _pageTitle = path switch
+        {
+            "created-applications" => "Созданные заявки",
+            "new-application" => "Создание заявки",
+            "active-applications" => "Активные заявки",
+            _ => "Неизвестная страница"
+        };
+    }
+
+    private void NavigateTo(string path) => NavigationManager.NavigateTo(path);
+
+    private void Logout() => NavigationManager.NavigateTo("/logout", forceLoad: true);
+
+    public void Dispose() => NavigationManager.LocationChanged -= OnLocationChanged;
+}

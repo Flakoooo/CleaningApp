@@ -1,5 +1,9 @@
+using CleaningAppWeb.Auth;
 using CleaningAppWeb.Components;
 using CleaningAppWeb.Data;
+using CleaningAppWeb.Domain.Entities;
+using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 
@@ -49,6 +53,33 @@ namespace CleaningAppWeb
 #endif
             }
 
+            builder.Services.AddRazorPages();
+
+            builder.Services.AddIdentity<User, IdentityRole<Guid>>(options =>
+            {
+                options.Password.RequireDigit = false;
+                options.Password.RequiredLength = 8;
+                options.Password.RequireNonAlphanumeric = false;
+                options.Password.RequireUppercase = false;
+                options.Password.RequireLowercase = false;
+            })
+            .AddEntityFrameworkStores<AppDbContext>()
+            .AddDefaultTokenProviders();
+
+            builder.Services.ConfigureApplicationCookie(options =>
+            {
+                options.LoginPath = "/login";
+                options.ExpireTimeSpan = TimeSpan.FromHours(8);
+                options.SlidingExpiration = true;
+            });
+
+            builder.Services.AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider<User>>();
+            builder.Services.AddCascadingAuthenticationState();
+
+            builder.Services.AddHttpContextAccessor();
+
+            builder.Services.AddScoped<IUserClaimsPrincipalFactory<User>, CustomClaimsPrincipalFactory>();
+
             var app = builder.Build();
 
             if (!app.Environment.IsDevelopment())
@@ -57,10 +88,12 @@ namespace CleaningAppWeb
                 app.UseHsts();
             }
 
-            app.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages: true);
             app.UseHttpsRedirection();
-
+            app.UseAuthentication();
+            app.UseAuthorization();
             app.UseAntiforgery();
+
+            app.MapRazorPages();
 
             app.MapStaticAssets();
             app.MapRazorComponents<App>()
@@ -71,12 +104,9 @@ namespace CleaningAppWeb
                 var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 #if DEBUG
                 dbContext.Database.EnsureCreated();
+                await SeedData.Initialize(dbContext, scope.ServiceProvider);
 #else
                 await dbContext.Database.MigrateAsync();
-#endif
-
-#if DEBUG
-                await SeedData.Initialize(dbContext);
 #endif
             }
 

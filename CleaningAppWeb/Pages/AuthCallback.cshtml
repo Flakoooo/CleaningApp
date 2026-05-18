@@ -1,0 +1,16 @@
+﻿@page "/auth-callback"
+@using CleaningAppWeb.Domain.Entities
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<User> UserManager
+@inject SignInManager<User> SignInManager
+@{
+    var userId = Request.Query["userId"].ToString();
+    var user = await UserManager.FindByIdAsync(userId);
+    
+    if (user is not null)
+    {
+        await SignInManager.SignInAsync(user, false);
+    }
+    
+    Response.Redirect("/");
+}

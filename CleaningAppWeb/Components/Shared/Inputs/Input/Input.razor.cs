@@ -5,12 +5,6 @@ namespace CleaningAppWeb.Components.Shared.Inputs.Input
     public partial class Input
     {
         [Parameter]
-        public bool IsLoading { get; set; } = false;
-
-        [Parameter]
-        public int Width { get; set; } = 100;
-
-        [Parameter]
         public string? Label { get; set; }
 
         [Parameter]
@@ -26,42 +20,19 @@ namespace CleaningAppWeb.Components.Shared.Inputs.Input
         public bool? IsDisabled { get; set; }
 
         [Parameter]
-        public string? CustomClass { get; set; }
-
-        [Parameter]
         public string Value { get; set; } = string.Empty;
 
         [Parameter]
         public EventCallback<string> ValueChanged { get; set; }
 
         [Parameter]
-        public bool NeedValidation { get; set; } = false;
-
-        [Parameter]
-        public Func<string, bool>? CustomValidation { get; set; }
-
-        [Parameter]
-        public string? ErrorMessage { get; set; } = "Поле не заполнено";
+        public string? ErrorMessage { get; set; }
 
         private bool _showError = false;
-        private string _pendingValue = string.Empty;
 
         protected override void OnParametersSet()
         {
-            if (NeedValidation)
-            {
-                if (CustomValidation is not null)
-                {
-                    // var result = CustomValidation(Value);
-                    // ErrorMessage = result.Message;
-                    // _showError = !result.IsValid;
-                }
-                else
-                {
-                    _showError = string.IsNullOrWhiteSpace(Value);
-                }
-            }
-            else _showError = false;
+            _showError = !string.IsNullOrWhiteSpace(ErrorMessage);
 
             StateHasChanged();
         }

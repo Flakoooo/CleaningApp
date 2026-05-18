@@ -1,23 +1,37 @@
 ﻿using CleaningAppWeb.Domain.Entities;
 using CleaningAppWeb.Domain.Enums;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace CleaningAppWeb.Data
 {
     public static class SeedData
     {
-        public static async Task Initialize(AppDbContext context)
+        public static async Task Initialize(AppDbContext context, IServiceProvider serviceProvider)
         {
+            var userManager = serviceProvider.GetRequiredService<UserManager<User>>();
+
             if (!await context.Users.AnyAsync())
             {
-                await context.Users.AddRangeAsync(
-                    User.Create("vlasovvv", "12345678", RoleType.Officer, "Вадим", "Власов", "Владимирович", "+7-(912)-345-67-89"),
-                    User.Create("officer1", "12345678", RoleType.Officer, "Работник", "Офисный", "Тестовый", "+7-(923)-232-32-32"),
-                    User.Create("ivanii", "87654321", RoleType.Cleaner, "Иван", "Иванов", "Иванович", "+7-(998)-765-43-21"),
-                    User.Create("cleaner1", "12345678", RoleType.Cleaner, "Работник", "Клининга", "Тестовый", "+7-(909)-080-70-60")
-                );
+                var users = new (string login, string password, RoleType role, string firstName, string lastName, string patronymic, string phone)[]
+                {
+                    ("vlasovvv", "12345678", RoleType.Officer, "Вадим", "Власов", "Владимирович", "+7-(912)-345-67-89"),
+                    ("officer1", "12345678", RoleType.Officer, "Работник", "Офисный", "Тестовый", "+7-(923)-232-32-32"),
+                    ("ivanii", "87654321", RoleType.Cleaner, "Иван", "Иванов", "Иванович", "+7-(998)-765-43-21"),
+                    ("cleaner1", "12345678", RoleType.Cleaner, "Работник", "Клининга", "Тестовый", "+7-(909)-080-70-60")
+                };
 
-                await context.SaveChangesAsync();
+                foreach (var (login, password, role, firstName, lastName, patronymic, phone) in users)
+                {
+                    var user = User.Create(login, role, firstName, lastName, patronymic, phone);
+
+                    var result = await userManager.CreateAsync(user, password);
+                    if (!result.Succeeded)
+                    {
+                        var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+                        Console.WriteLine($"Ошибка создания пользователя {login}: {errors}");
+                    }
+                }
             }
 
             if (!await context.Offices.AnyAsync())

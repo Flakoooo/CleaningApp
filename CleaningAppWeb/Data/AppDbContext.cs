@@ -1,12 +1,15 @@
 ﻿using CleaningAppWeb.Domain.Entities;
 using CleaningAppWeb.Domain.Relations;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace CleaningAppWeb.Data
 {
-    public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
+    public class AppDbContext(
+        DbContextOptions<AppDbContext> options
+    ) : IdentityDbContext<User, IdentityRole<Guid>, Guid>(options)
     {
-        public DbSet<User> Users { get; set; }
         public DbSet<Office> Offices { get; set; }
         public DbSet<Room> Rooms { get; set; }
         public DbSet<Service> Services { get; set; }
@@ -16,11 +19,29 @@ namespace CleaningAppWeb.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
+
             modelBuilder.Entity<User>(entity =>
             {
+                entity.Property(u => u.Id).HasColumnName("id");
+                entity.Property(u => u.UserName).HasColumnName("login");
+                entity.Property(u => u.PasswordHash).HasColumnName("password_hash");
+                entity.Property(u => u.NormalizedUserName).HasColumnName("normalized_login").IsRequired();
+                entity.Property(u => u.SecurityStamp).HasColumnName("security_stamp").IsRequired();
                 entity.Property(e => e.Role).HasConversion<string>();
 
-                entity.HasIndex(u => u.Login)
+                entity.Ignore(u => u.Email);
+                entity.Ignore(u => u.NormalizedEmail);
+                entity.Ignore(u => u.EmailConfirmed);
+                entity.Ignore(u => u.PhoneNumber);
+                entity.Ignore(u => u.PhoneNumberConfirmed);
+                entity.Ignore(u => u.TwoFactorEnabled);
+                entity.Ignore(u => u.LockoutEnd);
+                entity.Ignore(u => u.LockoutEnabled);
+                entity.Ignore(u => u.AccessFailedCount);
+                entity.Ignore(u => u.ConcurrencyStamp);
+
+                entity.HasIndex(u => u.UserName)
                       .HasDatabaseName("ix_users_login")
                       .IsUnique();
                 entity.HasIndex(u => u.Role)
