@@ -2,7 +2,7 @@
 
 namespace CleaningAppWeb.Domain.DTOs
 {
-    public class CleaningApplicationDTO
+    public class CleaningApplicationListElement
     {
         public required Guid Id { get; set; }
         public required UserDTO Initiator { get; set; }
@@ -18,7 +18,7 @@ namespace CleaningAppWeb.Domain.DTOs
         public string Comment { get; set; } = string.Empty;
         public byte Rating { get; set; } = 0;
         public string Feedback { get; set; } = string.Empty;
-        public List<RoomDTO> Rooms { get; set; } = [];
-        public List<ServiceDTO> Services { get; set; } = [];
+        public int RoomsCount { get; set; }
+        public int ServicesCount { get; set; }
     }
 }

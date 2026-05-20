@@ -1,16 +1,23 @@
 ﻿@page "/active-applications"
+@attribute [Authorize(Roles = "Cleaner")]
 @using CleaningAppWeb.Components.Models
+@using CleaningAppWeb.Components.Services
 @using CleaningAppWeb.Components.Shared.ApplicationCard
 @using CleaningAppWeb.Components.Shared.Button
 @using CleaningAppWeb.Components.Shared.CheckboxFilter
 @using CleaningAppWeb.Components.Shared.Inputs.Number
 @using CleaningAppWeb.Domain.DTOs
 @using CleaningAppWeb.Domain.Enums
+@using Microsoft.AspNetCore.Authorization
+@inherits PaginationLoader
 
 <div class="active-applications-page">
     <div class="acitve-applications-card">
-        <div class="active-applications-list">
-            <ApplicationCard />
+        <div class="active-applications-list" @ref="_tableContainer">
+            @foreach (var application in _applications)
+            {
+                <ApplicationCard CleaningApplication="application" />
+            }
         </div>
         <div class="active-applications-filter">
             <CheckboxFilter T="ValueSelectableItem<CleaningApplicationStatus>" Label="Статус заявки" />
@@ -24,15 +31,3 @@
         </div>
     </div>
 </div>
-
-@code {
-    private List<ValueSelectableItem<TimeOnly>> _timeFilter = [];
-
-    protected override async Task OnInitializedAsync()
-    {
-        for (int i = 9; i < 17; ++i)
-        {
-            _timeFilter.Add(new ValueSelectableItem<TimeOnly>(new TimeOnly(i, 0, 0), $"{i}:00"));
-        }
-    }
-}

@@ -8,7 +8,7 @@
 
 .new-application-card {
     width: 65%;
-    height: 75%;
+    min-height: 75%;
     background: #F6D200;
     border-radius: 16px;
     padding: 16px;

@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using CleaningAppWeb.Domain.DTOs;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CleaningAppWeb.Domain.Entities
 {
@@ -15,5 +16,13 @@ namespace CleaningAppWeb.Domain.Entities
         public string Name { get; set; } = string.Empty;
 
         public virtual ICollection<Room> Rooms { get; set; } = [];
+
+
+        public static OfficeDTO ToDTO(Office office) => new OfficeDTO
+        {
+            Id = office.Id,
+            Address = office.Address,
+            Name = office.Name
+        };
     }
 }

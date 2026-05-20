@@ -1,24 +1,15 @@
 ﻿@page "/created-applications"
 @attribute [Authorize(Roles = "Officer")]
 @using CleaningAppWeb.Components.Shared.ApplicationCard
+@using CleaningAppWeb.Components.Shared.OfficerApplicationsCard
 @using Microsoft.AspNetCore.Authorization
 @rendermode InteractiveServer
 
 <div class="w-100 h-100 d-flex flex-row">
     <div class="application-side">
-        <div class="applications-card">
-            <div class="fs-2 d-flex justify-content-center align-items-center" style="height: 10%;">Активные заявки</div>
-            <div class="applications-card-list">
-                <ApplicationCard />
-            </div>
-        </div>
+        <OfficerApplicationsCard Label="Активные заявки" />
     </div>
     <div class="application-side">
-        <div class="applications-card">
-            <div class="fs-2 d-flex justify-content-center align-items-center" style="height: 10%;">История заявок</div>
-            <div class="applications-card-list">
-
-            </div>
-        </div>
+        <OfficerApplicationsCard Label="История заявки" />
     </div>
 </div>

@@ -19,17 +19,24 @@
                        @oninput="@(async e => await OnSearch(e.Value?.ToString()))"
                        value="@Value?.GetDisplayInfo()"
                        placeholder="@Placeholder"
-                       class="form-control rounded-end"
+                       class="form-control rounded-end @(_showError ? "is-invalid" : string.Empty)"
                        disabled="@IsDisabled"
                        @onclick="OpenDropdown"
                        @onfocus="OpenDropdown"
                        @onkeydown="OnInputKeyDown" />
+                @if (_showError)
+                {
+                    <span class="invalid-feedback m-0">@ErrorMessage</span>
+                }
             </div>
         </div>
 
         @if (!IsDisabled && !_isOpen)
         {
-            <i class="input-dropdown-icon bi bi-chevron-down" @onclick="ToggleDropdown"></i>
+            <i class="input-dropdown-icon bi bi-chevron-down" 
+               style="@(_showError ? "is-right: 30px;" : string.Empty)"
+               @onclick="ToggleDropdown">
+            </i>
         }
 
         <div @ref="_tableContainer" 

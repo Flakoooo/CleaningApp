@@ -20,45 +20,85 @@
                       Checked="_setUserData" 
                       OnClick="SetUserData" />
             <div class="d-flex flex-row gap-5">
-                <Input Label="Имя" Placeholder="Введите имя" IsDisabled="_setUserData" />
-                <Input Label="Фамилия" Placeholder="Введите фамилию" IsDisabled="_setUserData" />
-                <Input Label="Отчество" Placeholder="Введите отчество" IsDisabled="_setUserData" />
+                <Input Label="Имя" 
+                       Placeholder="Введите имя" 
+                       IsDisabled="_setUserData" 
+                       Value="@(_setUserData ? _userFirstName : CreateRequest.ClientFirstName)"
+                       ValueChanged="(value) => CreateRequest.ClientFirstName = value"
+                       ErrorMessage="@_errors.GetValueOrDefault("firstName")"/>
+                <Input Label="Фамилия" 
+                       Placeholder="Введите фамилию" 
+                       IsDisabled="_setUserData" 
+                       Value="@(_setUserData ? _userLastName : CreateRequest.ClientLastName)"
+                       ValueChanged="(value) => CreateRequest.ClientLastName = value"
+                       ErrorMessage="@_errors.GetValueOrDefault("lastName")" />
+                <Input Label="Отчество" 
+                       Placeholder="Введите отчество" 
+                       IsDisabled="_setUserData" 
+                       Value="@(_setUserData ? _userPatronymicName : CreateRequest.ClientPatronymic)"
+                       ValueChanged="(value) => CreateRequest.ClientPatronymic = value"
+                       ErrorMessage="@_errors.GetValueOrDefault("patronymic")" />
             </div>
             <div class="d-flex flex-row gap-4">
-                <Input Label="Контактный номер" Placeholder="Введите номер телефона" IsDisabled="_setUserData" />
-                <RadioDropdown T="OfficeDTO" Label="Адрес офиса" Placeholder="Выберите адрес офиса" DebounceDelay="500" IsDisabled="_setUserData" />
+                <Input Label="Контактный номер" 
+                       Placeholder="Введите номер телефона" 
+                       IsDisabled="_setUserData" 
+                       Value="@(_setUserData ? _userTelephoneNumber : CreateRequest.ClientTelephoneNumber)"
+                       ValueChanged="(value) => CreateRequest.ClientTelephoneNumber = value"
+                       ErrorMessage="@_errors.GetValueOrDefault("telephoneNumber")" />
+                <RadioDropdown T="OfficeDTO" 
+                               Label="Адрес офиса" 
+                               Placeholder="Выберите адрес офиса" 
+                               DataLoaderMethod="async (page, searchText) => await OfficesService.GetOfficesAsync(page, searchText: searchText)"
+                               @bind-Value="_selectedOffice"
+                               DebounceDelay="500"
+                               ErrorMessage="@_errors.GetValueOrDefault("office")" />
             </div>
         </div>
         <div class="d-flex flex-row w-100 gap-4">
             <div class="d-flex flex-column w-50 gap-2">
-                <CheckboxDropdown T="RoomDTO" Label="Кабинеты" Placeholder="Выберите кабинеты" DebounceDelay="500"  />
+                <CheckboxDropdown T="RoomDTO" 
+                                  Label="Кабинеты" 
+                                  Placeholder="@(_selectedOffice is null ? "Сперва выберите офис" : "Выберите кабинеты")"
+                                  DataLoaderMethod="_selectedOffice is not null 
+                                      ? async (page, searchText) => await RoomsService.GetRoomsAsync(page, officeId: _selectedOffice?.Id, searchText: searchText)
+                                      : null"
+                                  @bind-SelectedValues="_selectedRooms"
+                                  IsDisabled="_selectedOffice is null"
+                                  DebounceDelay="500"
+                                  ErrorMessage="@_errors.GetValueOrDefault("rooms")" />
                 <Input InputType="InputType.Date" 
                        Label="Дата" 
                        Placeholder="Введите дату уборки" 
                        Value="@_selectedDateString"
-                       ValueChanged="SelectDate" />
-                <RadioDropdown T="ValueSelectableItem<TimeOnly>" 
-                               AllValues="_availableTime" 
-                               Label="Время" 
-                               Placeholder="Выберите время уборки" 
-                               Value="_selectedTime"
-                               ValueChanged="SelectTime" />
+                       ValueChanged="SelectDate"
+                       ErrorMessage="@_errors.GetValueOrDefault("date")" />
+                @{
+                    var timeDisabled = CreateRequest.CleaningDate == DateOnly.MinValue;
+                    <RadioDropdown T="ValueSelectableItem<TimeOnly>"
+                                   AllValues="_availableTime"
+                                   Label="Время"
+                                   Placeholder="@(timeDisabled ? "Сперва выберите время уборки" : "Выберите время уборки")"
+                                   IsDisabled="timeDisabled"
+                                   Value="_selectedTime"
+                                   ValueChanged="SelectTime"
+                                   ErrorMessage="@_errors.GetValueOrDefault("time")" />
+                }
                 <TextArea Label="Комментарий (при необходимости)" 
                           Placeholder="Введите комментарий"
-                          Style="resize: none; height: 14vh;" />
+                          Style="resize: none; height: 14vh;"
+                          @bind-Value="CreateRequest.Comment" />
             </div>
             <div class="d-flex flex-column w-50">
                 <div style="color: #312B2B;">Услуги</div>
                 <div class="overflow-y-auto d-flex flex-column ps-2">
-                    @if (AvailableServices.Count == 0)
+                    @if (_availableServices.Count == 0)
                     {
-                        <div style="color: #312B2B;">
-                            Доступные услуги отсутствуют
-                        </div>
+                        <div style="color: #312B2B;">Доступные услуги отсутствуют</div>
                     }
                     else
                     {
-                        @foreach (var service in AvailableServices)
+                        @foreach (var service in _availableServices)
                         {
                             <Checkbox DisplayText="@service.Name"
                                       Checked="_selectedServices.Contains(service.Id)"
@@ -69,98 +109,7 @@
             </div>
         </div>
         <div class="w-100 d-flex justify-content-end">
-            <Button Text="Создать" Style="width: 18%;" />
+            <Button Text="Создать" Style="width: 18%;" OnButtonClick="CreateApplication" />
         </div>
     </div>
 </div>
-
-@code {
-    private List<ServiceDTO> AvailableServices { get; set; } = [];
-
-    private bool _setUserData = false;
-
-    private string _selectedDateString = string.Empty;
-    private DateOnly _selectedDate;
-
-    private List<ValueSelectableItem<TimeOnly>> _availableTime = [];
-    private ValueSelectableItem<TimeOnly>? _selectedTime;
-
-    private HashSet<Guid> _selectedServices = [];
-
-    protected override async Task OnInitializedAsync()
-    {
-        _availableTime = [ new ValueSelectableItem<TimeOnly>(new TimeOnly(), "Сперва выберите дату") ];
-    }
-
-    private void SetUserData()
-    {
-        _setUserData = !_setUserData;
-        if (_setUserData)
-        {
-
-        }
-        else
-        {
-
-        }
-    }
-
-    private void SelectService(Guid serviceId)
-    {
-        if (!_selectedServices.Add(serviceId))
-            _selectedServices.Remove(serviceId);
-    }
-
-    private void SelectDate(string date)
-    {
-        if (string.IsNullOrWhiteSpace(date))
-        {
-            _selectedDateString = string.Empty;
-            _selectedDate = DateOnly.MinValue;
-            _availableTime = [new ValueSelectableItem<TimeOnly>(new TimeOnly(), "Сперва выберите дату")];
-            return;
-        }
-
-        var currentDateTime = DateTime.Now;
-
-        _selectedDate = DateOnly.ParseExact(date, "yyyy-MM-dd", CultureInfo.InvariantCulture);
-
-        //TODOO: заменить на вывод ошибки
-        if (_selectedDate < DateOnly.FromDateTime(currentDateTime))
-        {
-            _selectedDateString = string.Empty;
-            _selectedDate = DateOnly.MinValue;
-            _availableTime = [new ValueSelectableItem<TimeOnly>(new TimeOnly(), "Сперва выберите дату")];
-            return;
-        }
-
-        GetAvailableTime();
-    }
-
-    private void GetAvailableTime()
-    {
-        var currentDateTime = DateTime.Now;
-
-        bool selectCurrentDay = DateOnly.FromDateTime(currentDateTime) == _selectedDate;
-
-        var newAvailableTimes = new List<ValueSelectableItem<TimeOnly>>();
-        for (int i = 9; i < 17; ++i)
-        {
-            if (selectCurrentDay && currentDateTime.Hour >= i) continue;
-
-            newAvailableTimes.Add(new ValueSelectableItem<TimeOnly>(new TimeOnly(i, 0, 0), $"{i}:00"));
-        }
-
-        if (newAvailableTimes.Count == 0)
-            newAvailableTimes.Add(new ValueSelectableItem<TimeOnly>(new TimeOnly(), "На данную дату нет доступного времени"));
-
-        _availableTime = newAvailableTimes;
-    }
-
-    private void SelectTime(ValueSelectableItem<TimeOnly> value)
-    {
-        if (value.Value.Hour is < 9 or > 16) return;
-
-        _selectedTime = value;
-    }
-}

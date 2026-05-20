@@ -1,6 +1,7 @@
 using CleaningAppWeb.Auth;
 using CleaningAppWeb.Components;
 using CleaningAppWeb.Data;
+using CleaningAppWeb.Data.Services;
 using CleaningAppWeb.Domain.Entities;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -79,6 +80,11 @@ namespace CleaningAppWeb
             builder.Services.AddHttpContextAccessor();
 
             builder.Services.AddScoped<IUserClaimsPrincipalFactory<User>, CustomClaimsPrincipalFactory>();
+
+            builder.Services.AddScoped<OfficesService>();
+            builder.Services.AddScoped<RoomsService>();
+            builder.Services.AddScoped<CleaningServicesService>();
+            builder.Services.AddScoped<CleaningApplicationsService>();
 
             var app = builder.Build();
 

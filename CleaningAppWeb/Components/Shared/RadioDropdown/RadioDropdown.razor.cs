@@ -35,6 +35,11 @@ namespace CleaningAppWeb.Components.Shared.RadioDropdown
         [Parameter]
         public int DebounceDelay { get; set; } = 0;
 
+        [Parameter]
+        public string? ErrorMessage { get; set; }
+
+        private bool _showError = false;
+
         private ElementReference _inputRef;
         private DebounceHelper? _searchDebounce;
 
@@ -62,7 +67,12 @@ namespace CleaningAppWeb.Components.Shared.RadioDropdown
             MarkAsInitialized();
         }
 
-        protected override async Task OnParametersSetAsync() => await OnSearch();
+        protected override void OnParametersSet()
+        {
+            _showError = !string.IsNullOrWhiteSpace(ErrorMessage);
+
+            StateHasChanged();
+        }
 
         protected override async Task OnLoadMoreItemsAsync()
             => await LoadRadioDataAsync(append: true);

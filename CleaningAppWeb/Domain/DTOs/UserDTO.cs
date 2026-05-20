@@ -11,5 +11,8 @@ namespace CleaningAppWeb.Domain.DTOs
         public string LastName { get; set; } = string.Empty;
         public string Patronymic { get; set; } = string.Empty;
         public string TelephoneNumber { get; set; } = string.Empty;
+
+
+        public string ShortFullName => $"{LastName} {FirstName.FirstOrDefault()} {Patronymic.FirstOrDefault()}";
     }
 }

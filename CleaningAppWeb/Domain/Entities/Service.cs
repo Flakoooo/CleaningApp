@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using CleaningAppWeb.Domain.DTOs;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CleaningAppWeb.Domain.Entities
 {
@@ -16,5 +17,12 @@ namespace CleaningAppWeb.Domain.Entities
 
         [Column("is_active")]
         public bool IsActive { get; set; } = true;
+
+
+        public static ServiceDTO ToDTO(Service service) => new()
+        {
+            Id = service.Id,
+            Name = service.Name
+        };
     }
 }

@@ -18,21 +18,28 @@
                        @ref="_inputRef"
                        @oninput="@(async e => await OnSearch(e))"
                        placeholder="@($"{Placeholder}{(SelectedValues.Count > 0 ? $" ({SelectedValues.Count})" : "")}")"
-                       class="form-control"
+                       class="form-control rounded-end @(_showError ? "is-invalid" : string.Empty)"
                        @attributes="GetInputAttributes()"
                        @onclick="OpenDropdown"
                        @onfocus="OpenDropdown"
                        @onkeydown="OnInputKeyDown" />
+                @if (_showError)
+                {
+                    <span class="invalid-feedback m-0">@ErrorMessage</span>
+                }
             </div>
         </div>
 
         @if (!_isOpen)
         {
-            <i class="input-dropdown-icon bi bi-chevron-down" @onclick="ToggleDropdown"></i>
+            <i class="input-dropdown-icon bi bi-chevron-down" 
+               style="@(_showError ? "is-right: 30px;" : string.Empty)" 
+               @onclick="ToggleDropdown">
+            </i>
         }
 
         <div @ref="_tableContainer"
-             class="input-dropdown-icon list-group dropdown-list"
+             class="input-dropdown-list-conatiner list-group dropdown-list"
              style="@(_isOpen && _values.Any() ? string.Empty : "display: none;")"
              @onclick:stopPropagation="true">
             @foreach (var value in _values)

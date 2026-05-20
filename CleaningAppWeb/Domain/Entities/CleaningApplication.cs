@@ -1,4 +1,5 @@
-﻿using CleaningAppWeb.Domain.Enums;
+﻿using CleaningAppWeb.Domain.DTOs;
+using CleaningAppWeb.Domain.Enums;
 using CleaningAppWeb.Domain.Relations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -60,5 +61,32 @@ namespace CleaningAppWeb.Domain.Entities
         public virtual Office Office { get; set; } = null!;
         public virtual ICollection<ApplicationRoom> ApplicationRooms { get; set; } = [];
         public virtual ICollection<ApplicationService> ApplicationServices { get; set; } = [];
+
+
+        public static CleaningApplicationListElement? ToListElement(CleaningApplication ca)
+        {
+            var initiatorDTO = User.ToDTO(ca.Initiator);
+            if (initiatorDTO is null) return null;
+
+            return new CleaningApplicationListElement
+            {
+                Id = ca.Id,
+                Initiator = initiatorDTO,
+                Executor = User.ToDTO(ca.Executor),
+                Office = Office.ToDTO(ca.Office),
+                Status = ca.Status,
+                ClientFirstName = ca.ClientFirstName,
+                ClientLastName = ca.ClientLastName,
+                ClientPatronymic = ca.ClientPatronymic,
+                ClientTelephoneNumber = ca.ClientTelephoneNumber,
+                CleaningDate = ca.CleaningDate,
+                CleaningTime = ca.CleaningTime,
+                Comment = ca.Comment ?? string.Empty,
+                Rating = ca.Rating,
+                Feedback = ca.Feedback ?? string.Empty,
+                RoomsCount = ca.ApplicationRooms.Count,
+                ServicesCount = ca.ApplicationServices.Count
+            };
+        }
     }
 }

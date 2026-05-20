@@ -38,6 +38,11 @@ namespace CleaningAppWeb.Components.Shared.CheckboxDropdown
         [Parameter]
         public bool? IsDisabled { get; set; }
 
+        [Parameter]
+        public string? ErrorMessage { get; set; }
+
+        private bool _showError = false;
+
         private ElementReference _inputRef;
         private DebounceHelper? _searchDebounce;
 
@@ -62,6 +67,13 @@ namespace CleaningAppWeb.Components.Shared.CheckboxDropdown
             }
             await LoadCheckboxDataAsync();
             MarkAsInitialized();
+        }
+
+        protected override void OnParametersSet()
+        {
+            _showError = !string.IsNullOrWhiteSpace(ErrorMessage);
+
+            StateHasChanged();
         }
 
         protected override async Task OnLoadMoreItemsAsync()

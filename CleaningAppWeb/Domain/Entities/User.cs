@@ -1,4 +1,5 @@
-﻿using CleaningAppWeb.Domain.Enums;
+﻿using CleaningAppWeb.Domain.DTOs;
+using CleaningAppWeb.Domain.Enums;
 using Microsoft.AspNetCore.Identity;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -44,6 +45,23 @@ namespace CleaningAppWeb.Domain.Entities
             Patronymic = patronymic,
             TelephoneNumber = telephoneNumber
         };
+
+        public static UserDTO? ToDTO(User? user)
+        {
+            if (user is null || user.UserName is null)
+                return null;
+
+            return new UserDTO
+            {
+                Id = user.Id,
+                Login = user.UserName,
+                Role = user.Role,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Patronymic = user.Patronymic,
+                TelephoneNumber = user.TelephoneNumber
+            };
+        }
 
     }
 }

@@ -1,55 +1,89 @@
 ﻿@using CleaningAppWeb.Domain.DTOs
+@using CleaningAppWeb.Domain.Enums
+@using Microsoft.AspNetCore.Components.Authorization
+@using System.Security.Claims
 <div class="application">
     <div class="d-flex flex-column p-3 pb-2 block-info-border-top">
         <div class="application-main-text d-flex flex-row gap-1">
             <i class="bi bi-building-fill"></i>
-            Уборка в Adress
+            Уборка в @CleaningApplication.Office?.Address
         </div>
         <div class="application-sub-text d-flex flex-row gap-1">
             <i class="bi bi-clock-fill"></i>
-            @{
-                var currentDate = DateTime.Now;
-                <div class="gap-2 d-flex flex-row">
-                    <div>@DateOnly.FromDateTime(currentDate).ToString("dd.MM.yyyy")</div>
-                    <div>@TimeOnly.FromDateTime(currentDate).ToString("HH:mm")</div>
-                </div>
-            }
+            <div class="gap-2 d-flex flex-row">
+                <div>@CleaningApplication.CleaningDate.ToString("dd.MM.yyyy")</div>
+                <div>@CleaningApplication.CleaningTime.ToString("HH:mm")</div>
+            </div>
         </div>
         <div class="application-main-text">
-            Статус: StatusType
+            Статус: @GetStatusTranslation()
         </div>
     </div>
     <div class="w-100 d-flex flex-row py-1 gap-2 px-3 block-info-border-middle">
         <div class="application-main-text d-flex flex-row gap-1">
             <i class="bi bi-person-fill"></i>
-            @(true ? "Исполнитель:" : "Заказчик:")
+            @(_currentRole is RoleType.Officer ? "Исполнитель:" : "Заказчик:")
         </div>
-        <div class="application-sub-text">Отчество И.Ф.</div>
+        <div class="application-sub-text">
+            @(_currentRole is RoleType.Officer ? CleaningApplication.Executor?.ShortFullName : CleaningApplication.Initiator?.ShortFullName)
+        </div>
     </div>
-    <div class="w-100 d-flex flex-row py-1 @(true ? "block-info-border-bottom" : "block-info-border-middle")">
+    <div class="w-100 d-flex flex-row py-1 @(CleaningApplication.Status > CleaningApplicationStatus.InWork ? "block-info-border-middle" : "block-info-border-bottom")">
         <div class="application-info-count">
             <span class="application-main-text">Кабинетов:</span>
-            <span class="application-sub-text">XX</span>
+            <span class="application-sub-text">@CleaningApplication.RoomsCount</span>
         </div>
         <div class="application-info-count">
             <span class="application-main-text">Услуг:</span>
-            <span class="application-sub-text">XX</span>
+            <span class="application-sub-text">@CleaningApplication.ServicesCount</span>
         </div>
     </div>
-    <div class="w-100 d-flex flex-row justify-content-center py-1 block-info-border-bottom">
-        <div class="application-main-text d-flex flex-row gap-1">
-            <i class="bi bi-star-half"></i>
-            Можно оценить работу!
+    @if (CleaningApplication.Status is CleaningApplicationStatus.Done)
+    {
+        <div class="w-100 d-flex flex-row justify-content-center py-1 block-info-border-bottom">
+            <div class="application-main-text d-flex flex-row gap-1">
+                <i class="bi bi-star-half"></i>
+                @(_currentRole is RoleType.Officer ? "Можно оценить работу!" : "Ожидает оценки")
+            </div>
         </div>
-    </div>
-    <div class="w-100 d-flex flex-row justify-content-center py-1 block-info-border-bottom">
-        <div class="application-main-text d-flex flex-row gap-1">
-            Оценка:
-            <i class="bi bi-star-fill"></i>
-            <i class="bi bi-star-fill"></i>
-            <i class="bi bi-star-fill"></i>
-            <i class="bi bi-star"></i>
-            <i class="bi bi-star"></i>
+    }
+    @if (CleaningApplication.Status is CleaningApplicationStatus.Rated)
+    {
+        <div class="w-100 d-flex flex-row justify-content-center py-1 block-info-border-bottom">
+            <div class="application-main-text d-flex flex-row gap-1">
+                Оценка:
+                @for (int i = 0; i < 5; ++i)
+                {
+                    <i class="bi bi-star@(i < CleaningApplication.Rating ? "-fill" : string.Empty)"></i>
+                }
+            </div>
         </div>
-    </div>
+    }
 </div>
+
+@code {
+    [Inject]
+    private AuthenticationStateProvider AuthProvider { get; set; } = null!;
+
+    [Parameter]
+    public required CleaningApplicationListElement CleaningApplication { get; set; }
+
+    private RoleType? _currentRole = null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var user = (await AuthProvider.GetAuthenticationStateAsync()).User;
+
+        if (Enum.TryParse(user.FindFirst(ClaimTypes.Role)?.Value ?? string.Empty, true, out RoleType role))
+            _currentRole = role;
+    }
+
+    private string GetStatusTranslation() => CleaningApplication.Status switch
+    {
+        CleaningApplicationStatus.Waiting => "Ожидание",
+        CleaningApplicationStatus.InWork => "В работе",
+        CleaningApplicationStatus.Done => "Выполнена",
+        CleaningApplicationStatus.Rated => "Оценена",
+        _ => CleaningApplication.Status.ToString()
+    };
+}
