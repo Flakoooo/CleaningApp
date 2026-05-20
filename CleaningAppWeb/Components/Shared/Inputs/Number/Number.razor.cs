@@ -23,15 +23,7 @@ namespace CleaningAppWeb.Components.Shared.Inputs.Number
         public EventCallback<T?> ValueChanged { get; set; }
 
         [Parameter]
-        public bool NeedValidation { get; set; } = false;
-
-        [Parameter]
-        public string? ErrorMessage { get; set; } = string.Empty;
-
-        [Parameter]
         public bool? IsDisabled { get; set; }
-
-        private bool _showError = false;
 
         protected override void OnInitialized()
         {
@@ -42,16 +34,6 @@ namespace CleaningAppWeb.Components.Shared.Inputs.Number
                 else if (MaxValue.HasValue && Comparer<T>.Default.Compare(Value.Value, MaxValue.Value) > 0)
                     Value = null;
             }
-        }
-
-        protected override void OnParametersSet()
-        {
-            _showError = NeedValidation && (!Value.HasValue ||
-                (MinValue.HasValue && Comparer<T>.Default.Compare(Value.Value, MinValue.Value) < 0) ||
-                (MaxValue.HasValue && Comparer<T>.Default.Compare(Value.Value, MaxValue.Value) > 0));
-
-            ErrorMessage = $"Значение должно быть от {MinValue} до {MaxValue}";
-            StateHasChanged();
         }
 
         private async Task OnInputChanged(T? value)

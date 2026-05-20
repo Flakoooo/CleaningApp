@@ -9,6 +9,7 @@
 @using CleaningAppWeb.Domain.DTOs
 @using CleaningAppWeb.Domain.Enums
 @using Microsoft.AspNetCore.Authorization
+@rendermode InteractiveServer
 @inherits PaginationLoader
 
 <div class="active-applications-page">
@@ -20,14 +21,36 @@
             }
         </div>
         <div class="active-applications-filter">
-            <CheckboxFilter T="ValueSelectableItem<CleaningApplicationStatus>" Label="Статус заявки" />
-            <CheckboxFilter T="ValueSelectableItem<ServiceDTO>" Label="Тип услуги" />
-            <Number T="uint" Label="Количество кабинетов" Placeholder="Введите количество кабентов" />
-            <CheckboxFilter T="ValueSelectableItem<OfficeDTO>" Label="Адрес" />
+            <CheckboxFilter T="ValueSelectableItem<CleaningApplicationStatus>" 
+                            Label="Статус заявки"
+                            AllValues="_filterStatuses"
+                            FilterChanged="() => LoadApplicationsAsync()"
+                            @bind-SelectedValues="_selectedStatuses" />
+            <CheckboxFilter T="ServiceDTO"
+                            AllValues="_filterServices"
+                            Label="Тип услуги"
+                            FilterChanged="() => LoadApplicationsAsync()"
+                            @bind-SelectedValues="_selectedServices" />
+            @*debounce нужен*@
+            <Number T="int" 
+                    Label="Количество кабинетов" 
+                    MinValue="0"
+                    Value="_roomsCount"
+                    ValueChanged="async (value) => await SetRoomsCount(value)"  
+                    Placeholder="Введите количество кабинетов" />
+            <CheckboxFilter T="OfficeDTO"
+                            DataLoaderMethod="async (page) => await OfficesService.GetOfficesAsync(page)"
+                            @bind-SelectedValues="_selectedOffices"
+                            FilterChanged="() => LoadApplicationsAsync()"
+                            Label="Адрес" />
             <CheckboxFilter T="ValueSelectableItem<TimeOnly>" 
-                            AllValues="_timeFilter" 
-                            Label="Время" />
-            <Button Width="width: 100%;" Text="Сбросить фильтры" />
+                            AllValues="_filterTime" 
+                            Label="Время"
+                            FilterChanged="() => LoadApplicationsAsync()"
+                            @bind-SelectedValues="_selectedTimes" />
+            <Button Width="width: 100%;" 
+                    Text="Сбросить фильтры"
+                    OnButtonClick="ResetFilters" />
         </div>
     </div>
 </div>

@@ -21,6 +21,6 @@ namespace CleaningAppWeb.Domain.DTOs
         public int RoomsCount { get; set; }
         public int ServicesCount { get; set; }
 
-        public string ShortClientFullName => $"{ClientLastName} {ClientFirstName.FirstOrDefault()} {ClientPatronymic.FirstOrDefault()}";
+        public string ShortClientFullName => $"{ClientLastName} {ClientFirstName.FirstOrDefault()}. {ClientPatronymic.FirstOrDefault()}.";
     }
 }

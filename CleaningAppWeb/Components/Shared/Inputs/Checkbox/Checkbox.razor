@@ -2,7 +2,9 @@
     <input type="@InputType.Checkbox.ToString().ToLower()"
            checked="@Checked"
            class="form-check-input"
-           style="cursor: pointer;" />
+           style="cursor: pointer;"
+           @onclick="() => SelectCheckbox()"
+           @onclick:stopPropagation="true" />
     @if (!string.IsNullOrWhiteSpace(DisplayText))
     {
         <span class="form-check-label ms-2 @DisplayTextCustomClass">
@@ -10,19 +12,6 @@
         </span>
     }
 </div>
-
-<style>
-    .form-check-input:checked {
-        background-color: #312B2B;
-        border-color: #312B2B;
-    }
-
-    .form-check-input:focus {
-        border-color: #312B2B;
-        outline: 0;
-        box-shadow: 0 0 0 .25rem #6B6B6B4D;
-    }
-</style>
 
 @code {
     [Parameter]

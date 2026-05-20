@@ -15,11 +15,7 @@
                @bind:get="Value"
                @bind:set="OnInputChanged"
                @bind:event="oninput"
-               class="form-control rounded-end @(_showError ? "is-invalid" : string.Empty)"
+               class="form-control rounded-end"
                @attributes="GetInputAttributes()" />
-        @if (_showError)
-        {
-            <span class="invalid-feedback">@ErrorMessage</span>
-        }
         </div>
 </div>

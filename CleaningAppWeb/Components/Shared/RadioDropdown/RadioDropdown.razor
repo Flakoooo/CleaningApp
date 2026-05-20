@@ -46,9 +46,9 @@
              @onclick:stopPropagation>
             @foreach (var value in _values)
             {
-                <div @onclick="@(() => OnElementChange(value))"
-                     class="input-dropdown-list-element list-group-item list-group-item-action"
-                     tabindex="-1">
+                <div class="input-dropdown-list-element list-group-item list-group-item-action"
+                     tabindex="-1"
+                     @onclick="() => OnElementChange(value)">
                     <div class="d-flex">
                         <input type="@InputType.Radio.ToString().ToLower()"
                                @onchange="@(() => OnElementChange(value))"
