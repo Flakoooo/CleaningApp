@@ -27,6 +27,9 @@ namespace CleaningAppWeb.Data.Services
             HashSet<TimeOnly>? selectedTime = null
         )
         {
+            if (page < 1) page = 1;
+            if (pageSize < 1) pageSize = 20;
+
             var currentUser = (await _provider.GetAuthenticationStateAsync()).User;
             if (!Guid.TryParse(currentUser.FindFirst(ClaimTypes.NameIdentifier)?.Value, out Guid userId))
                 return new ListDataResponse<CleaningApplicationListElement>(0, []);
@@ -34,10 +37,11 @@ namespace CleaningAppWeb.Data.Services
             if (!Enum.TryParse(currentUser.FindFirst(ClaimTypes.Role)?.Value ?? string.Empty, true, out RoleType userRole))
                 return new ListDataResponse<CleaningApplicationListElement>(0, []);
 
-            var query = _appDbContext.Applications.Where(ca => userRole == RoleType.Officer 
-                ? ca.InitiatorId == userId 
-                : (ca.ExecutorId == userId || ca.ExecutorId == null)
-            );
+            var query = _appDbContext.Applications
+                .AsNoTracking()
+                .Where(ca => userRole == RoleType.Officer
+                    ? ca.InitiatorId == userId
+                    : (ca.ExecutorId == userId || ca.ExecutorId == null));
 
             if (selectedStatuses?.Count > 0)
                 query = query.Where(ca => selectedStatuses.Contains(ca.Status));
@@ -54,44 +58,71 @@ namespace CleaningAppWeb.Data.Services
             if (selectedTime?.Count > 0)
                 query = query.Where(ca => selectedTime.Contains(ca.CleaningTime));
 
-            int count = query.Count();
+            int count = await query.CountAsync();
 
-            query = query.Skip((page - 1) * pageSize).Take(pageSize);
+            var items = await query
+                .OrderByDescending(ca => ca.CreatedAt)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .Select(ca => new CleaningApplicationListElement
+                {
+                    Id = ca.Id,
+                    InitiatorId = ca.InitiatorId,
+                    Executor = ca.Executor != null ? new UserDTO
+                    {
+                        Id = ca.Executor.Id,
+                        FirstName = ca.Executor.FirstName,
+                        LastName = ca.Executor.LastName,
+                        Patronymic = ca.Executor.Patronymic
+                    } : null,
+                    Office = new OfficeDTO
+                    {
+                        Id = ca.Office.Id,
+                        Name = ca.Office.Name,
+                        Address = ca.Office.Address,
+                    },
+                    Status = ca.Status,
+                    ClientFirstName = ca.ClientFirstName,
+                    ClientLastName = ca.ClientLastName,
+                    ClientPatronymic = ca.ClientPatronymic,
+                    ClientTelephoneNumber = ca.ClientTelephoneNumber,
+                    CleaningDate = ca.CleaningDate,
+                    CleaningTime = ca.CleaningTime,
+                    Comment = ca.Comment ?? string.Empty,
+                    Rating = ca.Rating,
+                    Feedback = ca.Feedback ?? string.Empty,
+                    RoomsCount = ca.ApplicationRooms.Count,
+                    ServicesCount = ca.ApplicationServices.Count
+                })
+                .ToListAsync();
 
-            var queryDTO = new List<CleaningApplicationListElement>();
-            foreach (var ca in query)
-            {
-                var application = CleaningApplication.ToListElement(ca);
-                if (application is not null) queryDTO.Add(application);
-            }
-
-            return new ListDataResponse<CleaningApplicationListElement>(count, queryDTO);
+            return new ListDataResponse<CleaningApplicationListElement>(count, items);
         }
 
         public async Task<CleaningApplicationDTO?> GetApplicationAsync(
-            Guid applicationdId
+            Guid applicationId
         )
         {
-            var application = await _appDbContext.Applications.FirstOrDefaultAsync(ca => ca.Id == applicationdId);
+            var application = await _appDbContext.Applications
+                .AsNoTracking()
+                .Include(ca => ca.ApplicationRooms.Where(ar => ar.Room.IsActive))
+                    .ThenInclude(ar => ar.Room)
+                .Include(ca => ca.ApplicationServices.Where(aser => aser.Service.IsActive))
+                    .ThenInclude(aser => aser.Service)
+                .Include(ca => ca.Initiator)
+                .Include(ca => ca.Executor)
+                .Include(ca => ca.Office)
+                .FirstOrDefaultAsync(ca => ca.Id == applicationId);
             if (application is null) return null;
 
-            var applicationsRoomsIds = application.ApplicationRooms.Select(ar => ar.RoomId).ToHashSet();
-            var roomsDTO = await _appDbContext.Rooms.Where(r => r.IsActive && applicationsRoomsIds.Contains(r.Id))
-                                                    .Select(r => Room.ToDTO(r))
-                                                    .ToListAsync();
+            var roomsDTO = application.ApplicationRooms.Select(r => Room.ToDTO(r.Room)).ToList();
 
-            var applicationsServicesIds = application.ApplicationServices.Select(aser => aser.ServiceId).ToHashSet();
-            var servicesDTO = await _appDbContext.Services.Where(s => s.IsActive && applicationsServicesIds.Contains(s.Id))
-                                                          .Select(s => Service.ToDTO(s))
-                                                          .ToListAsync();
-
-            var initiatorDTO = User.ToDTO(application.Initiator);
-            if (initiatorDTO is null) return null;
+            var servicesDTO = application.ApplicationServices.Select(s => Service.ToDTO(s.Service)).ToList();
 
             return new CleaningApplicationDTO
             {
                 Id = application.Id,
-                Initiator = initiatorDTO,
+                InitiatorId = application.InitiatorId,
                 Executor = User.ToDTO(application.Executor),
                 Office = Office.ToDTO(application.Office),
                 Status = application.Status,
@@ -109,33 +140,26 @@ namespace CleaningAppWeb.Data.Services
             };
         }
 
-        public async Task<bool> CreateNewAppliacationAsync(CreateApplicationRequest request)
+        public async Task<string> CreateNewApplicationAsync(CreateApplicationRequest request)
         {
-            //если указанный офис не существует
             if (!await _appDbContext.Offices.AnyAsync(o => o.Id == request.OfficeId))
-                return false;
+                return "Указанный офис в данный момент недоступен";
 
-            //если количество комнат, совпадающих, не соотвествуют количеству выбранных
-            if (await _appDbContext.Rooms.CountAsync(r => r.IsActive && request.Rooms.Contains(r.Id)) != request.Rooms.Count)
-                return false;
+            if (await _appDbContext.Rooms.CountAsync(r => r.IsActive && request.Rooms.Contains(r.Id) && r.OfficeId == request.OfficeId) != request.Rooms.Count)
+                return "Некоторые команты в данный момент недоступны";
 
-            //если указанные комнаты не соотвествуют с офисом
-            if (!await _appDbContext.Rooms.AllAsync(r => r.IsActive && request.Rooms.Contains(r.Id) && r.OfficeId == request.OfficeId))
-                return false;
-
-            //если количество услуг, совпадающих, не соотвествуют количеству выбранных
             if (await _appDbContext.Services.CountAsync(s => s.IsActive && request.Services.Contains(s.Id)) != request.Services.Count)
-                return false;
+                return "Некоторые услуги в данный момент недоступны";
 
             var currentDateTime = DateTime.Now;
             var currentDate = DateOnly.FromDateTime(currentDateTime);
-            if (currentDate < request.CleaningDate) return false;
+            if (currentDate > request.CleaningDate) return "Нельзя выбрать прошедшую дату";
             else if (currentDate == request.CleaningDate && TimeOnly.FromDateTime(currentDateTime) > request.CleaningTime)
-                return false;
+                return "Нельзя выбрать прошедшее время";
 
             var currentUser = (await _provider.GetAuthenticationStateAsync()).User;
             if (!Guid.TryParse(currentUser.FindFirst(ClaimTypes.NameIdentifier)?.Value, out Guid userId))
-                return false;
+                return "Ошибка авторизации";
 
             var newApplication = new CleaningApplication
             {
@@ -171,15 +195,12 @@ namespace CleaningAppWeb.Data.Services
             }
 
             await _appDbContext.Applications.AddAsync(newApplication);
-
-            await _appDbContext.SaveChangesAsync();
-
             await _appDbContext.ApplicationRooms.AddRangeAsync(applicationRooms);
             await _appDbContext.ApplicationServices.AddRangeAsync(applicationServices);
 
             await _appDbContext.SaveChangesAsync();
 
-            return true;
+            return string.Empty;
         }
     }
 }

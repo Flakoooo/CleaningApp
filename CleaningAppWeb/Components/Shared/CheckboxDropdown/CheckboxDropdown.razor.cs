@@ -9,9 +9,6 @@ namespace CleaningAppWeb.Components.Shared.CheckboxDropdown
     public partial class CheckboxDropdown<T>
     {
         [Parameter]
-        public bool IsLoading { get; set; } = false;
-
-        [Parameter]
         public string Label { get; set; } = string.Empty;
 
         [Parameter]
@@ -36,7 +33,7 @@ namespace CleaningAppWeb.Components.Shared.CheckboxDropdown
         public int DebounceDelay { get; set; } = 0;
 
         [Parameter]
-        public bool? IsDisabled { get; set; }
+        public bool IsDisabled { get; set; } = false;
 
         [Parameter]
         public string? ErrorMessage { get; set; }
@@ -55,23 +52,32 @@ namespace CleaningAppWeb.Components.Shared.CheckboxDropdown
         {
             if (DataLoaderMethod is not null && DebounceDelay > 0)
             {
-                _searchDebounce = new DebounceHelper(DebounceDelay, async () =>
-                {
-                    await InvokeAsync(async () =>
-                    {
-                        ResetPagination();
-                        await LoadCheckboxDataAsync();
-                        StateHasChanged();
-                    });
-                });
+                UpdateDebounce();
             }
+
             await LoadCheckboxDataAsync();
             MarkAsInitialized();
         }
 
-        protected override void OnParametersSet()
+        private void UpdateDebounce()
+        {
+            _searchDebounce = new DebounceHelper(DebounceDelay, async () =>
+            {
+                await InvokeAsync(async () =>
+                {
+                    ResetPagination();
+                    await LoadCheckboxDataAsync();
+                    StateHasChanged();
+                });
+            });
+        }
+
+        protected override async Task OnParametersSetAsync()
         {
             _showError = !string.IsNullOrWhiteSpace(ErrorMessage);
+
+            UpdateDebounce();
+            await OnSearch();
 
             StateHasChanged();
         }
@@ -110,16 +116,6 @@ namespace CleaningAppWeb.Components.Shared.CheckboxDropdown
             }
         }
 
-        private Dictionary<string, object> GetInputAttributes()
-        {
-            var attributes = new Dictionary<string, object>();
-
-            if (IsDisabled.HasValue && IsDisabled.Value)
-                attributes["disabled"] = "disabled";
-
-            return attributes;
-        }
-
         private async Task OpenDropdown()
         {
             if (!_isOpen) _isOpen = true;
@@ -134,9 +130,9 @@ namespace CleaningAppWeb.Components.Shared.CheckboxDropdown
             InvokeAsync(StateHasChanged);
         }
 
-        private async Task OnSearch(ChangeEventArgs e)
+        private async Task OnSearch(string? value = null)
         {
-            _searchText = (e.Value?.ToString() ?? string.Empty).Trim();
+            _searchText = (value ?? string.Empty).Trim();
 
             if (DataLoaderMethod is not null && DebounceDelay > 0)
             {

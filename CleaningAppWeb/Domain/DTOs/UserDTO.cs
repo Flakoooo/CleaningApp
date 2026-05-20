@@ -5,7 +5,7 @@ namespace CleaningAppWeb.Domain.DTOs
     public class UserDTO
     {
         public required Guid Id { get; set; }
-        public required string Login { get; set; }
+        public string Login { get; set; } = string.Empty;
         public RoleType Role { get; set; }
         public string FirstName { get; set; } = string.Empty;
         public string LastName { get; set; } = string.Empty;

@@ -2,14 +2,17 @@
 @attribute [Authorize(Roles = "Officer")]
 @using CleaningAppWeb.Components.Shared.ApplicationCard
 @using CleaningAppWeb.Components.Shared.OfficerApplicationsCard
+@using CleaningAppWeb.Domain.Enums
 @using Microsoft.AspNetCore.Authorization
 @rendermode InteractiveServer
 
 <div class="w-100 h-100 d-flex flex-row">
     <div class="application-side">
-        <OfficerApplicationsCard Label="Активные заявки" />
+        <OfficerApplicationsCard Label="Активные заявки" 
+                                 Statuses="[CleaningApplicationStatus.Waiting, CleaningApplicationStatus.InWork]" />
     </div>
     <div class="application-side">
-        <OfficerApplicationsCard Label="История заявки" />
+        <OfficerApplicationsCard Label="История заявки"
+                                 Statuses="[CleaningApplicationStatus.Done, CleaningApplicationStatus.Rated]" />
     </div>
 </div>

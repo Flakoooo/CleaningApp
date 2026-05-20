@@ -50,23 +50,28 @@
                                Label="Адрес офиса" 
                                Placeholder="Выберите адрес офиса" 
                                DataLoaderMethod="async (page, searchText) => await OfficesService.GetOfficesAsync(page, searchText: searchText)"
-                               @bind-Value="_selectedOffice"
+                               Value="_selectedOffice"
+                               ValueChanged="(value) => SelectOffice(value)"
                                DebounceDelay="500"
                                ErrorMessage="@_errors.GetValueOrDefault("office")" />
             </div>
         </div>
         <div class="d-flex flex-row w-100 gap-4">
             <div class="d-flex flex-column w-50 gap-2">
-                <CheckboxDropdown T="RoomDTO" 
-                                  Label="Кабинеты" 
-                                  Placeholder="@(_selectedOffice is null ? "Сперва выберите офис" : "Выберите кабинеты")"
-                                  DataLoaderMethod="_selectedOffice is not null 
-                                      ? async (page, searchText) => await RoomsService.GetRoomsAsync(page, officeId: _selectedOffice?.Id, searchText: searchText)
-                                      : null"
-                                  @bind-SelectedValues="_selectedRooms"
-                                  IsDisabled="_selectedOffice is null"
-                                  DebounceDelay="500"
-                                  ErrorMessage="@_errors.GetValueOrDefault("rooms")" />
+                @{
+                    var officeHasSelected = _selectedOffice is not null;
+                    <CheckboxDropdown T="RoomDTO"
+                                      Label="Кабинеты"
+                                      Placeholder="@(officeHasSelected ? "Выберите кабинеты" : "Сперва выберите офис")"
+                                      DataLoaderMethod="officeHasSelected
+                                            ? async (page, searchText) => await RoomsService.GetRoomsAsync(page, officeId: _selectedOffice?.Id, searchText: searchText)
+                                            : null"
+                                      SelectedValues="_selectedRooms"
+                                      SelectedValuesChanged="(value) => SelectRooms(value)"
+                                      IsDisabled="!officeHasSelected"
+                                      DebounceDelay="500"
+                                      ErrorMessage="@_errors.GetValueOrDefault("rooms")" />
+                }
                 <Input InputType="InputType.Date" 
                        Label="Дата" 
                        Placeholder="Введите дату уборки" 
@@ -78,7 +83,7 @@
                     <RadioDropdown T="ValueSelectableItem<TimeOnly>"
                                    AllValues="_availableTime"
                                    Label="Время"
-                                   Placeholder="@(timeDisabled ? "Сперва выберите время уборки" : "Выберите время уборки")"
+                                   Placeholder="@(timeDisabled ? "Сперва выберите дату уборки" : "Выберите время уборки")"
                                    IsDisabled="timeDisabled"
                                    Value="_selectedTime"
                                    ValueChanged="SelectTime"
@@ -90,7 +95,17 @@
                           @bind-Value="CreateRequest.Comment" />
             </div>
             <div class="d-flex flex-column w-50">
-                <div style="color: #312B2B;">Услуги</div>
+                @{
+                    var errorText = _errors.GetValueOrDefault("services");
+                    <div class="d-flex flex-row gap-2">
+                        <div style="color: #312B2B;">Услуги</div>
+                        @if (!string.IsNullOrWhiteSpace(errorText))
+                        {
+                            <div style="color: #312B2B;">(@errorText)</div>
+                            <i class="bi bi-exclamation-circle text-danger"></i>
+                        }
+                    </div>
+                }
                 <div class="overflow-y-auto d-flex flex-column ps-2">
                     @if (_availableServices.Count == 0)
                     {
@@ -108,7 +123,11 @@
                 </div>
             </div>
         </div>
-        <div class="w-100 d-flex justify-content-end">
+        <div class="w-100 d-flex justify-content-end align-items-center gap-2">
+            @if (!string.IsNullOrWhiteSpace(_createTextResult))
+            {
+                <div style="color: #312B2B;">@_createTextResult</div>
+            }
             <Button Text="Создать" Style="width: 18%;" OnButtonClick="CreateApplication" />
         </div>
     </div>

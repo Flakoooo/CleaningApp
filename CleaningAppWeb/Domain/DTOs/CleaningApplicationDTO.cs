@@ -5,7 +5,7 @@ namespace CleaningAppWeb.Domain.DTOs
     public class CleaningApplicationDTO
     {
         public required Guid Id { get; set; }
-        public required UserDTO Initiator { get; set; }
+        public required Guid InitiatorId { get; set; }
         public UserDTO? Executor { get; set; }
         public OfficeDTO? Office { get; set; }
         public CleaningApplicationStatus Status { get; set; }

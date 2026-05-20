@@ -22,6 +22,9 @@ namespace CleaningAppWeb.Components.Pages.NewApplication
         [Inject]
         private CleaningServicesService CleaningServicesService { get; set; } = null!;
 
+        [Inject]
+        private CleaningApplicationsService CleaningApplicationsService { get; set; } = null!;
+
         private CreateApplicationRequest CreateRequest { get; set; } = new();
 
         private readonly Dictionary<string, string> _errors = [];
@@ -43,6 +46,8 @@ namespace CleaningAppWeb.Components.Pages.NewApplication
 
         private List<ServiceDTO> _availableServices = [];
         private readonly HashSet<Guid> _selectedServices = [];
+
+        private string? _createTextResult;
 
         protected override async Task OnInitializedAsync()
         {
@@ -83,14 +88,27 @@ namespace CleaningAppWeb.Components.Pages.NewApplication
             }
         }
 
+        private void SelectOffice(OfficeDTO officeDTO)
+        {
+            _selectedOffice = officeDTO;
+            string errorOffice = "office";
+            if (_selectedOffice is not null && _errors.TryGetValue(errorOffice, out var _))
+                _errors.Remove(errorOffice);
+        }
+
         private void SelectService(Guid serviceId)
         {
             if (!_selectedServices.Add(serviceId))
                 _selectedServices.Remove(serviceId);
+
+            string errorServicesKey = "services";
+            if (_selectedServices.Count > 0 && _errors.TryGetValue(errorServicesKey, out var _))
+                _errors.Remove(errorServicesKey);
         }
 
         private void SelectDate(string date)
         {
+            string errorOfficeKey = "date";
             string errorText = string.Empty;
             _selectedDateString = date;
             if (DateOnly.TryParseExact(date, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateOnly newDate))
@@ -108,13 +126,26 @@ namespace CleaningAppWeb.Components.Pages.NewApplication
 
             if (!string.IsNullOrWhiteSpace(errorText))
             {
-                SetError("date", errorText);
+                SetError(errorOfficeKey, errorText);
 
                 _availableTime = [new ValueSelectableItem<TimeOnly>(new TimeOnly(), errorText)];
                 return;
             }
+            else
+            {
+                if (_errors.TryGetValue(errorOfficeKey, out var _))
+                    _errors.Remove(errorOfficeKey);
+            }
 
             GetAvailableTime();
+        }
+
+        private void SelectRooms(HashSet<RoomDTO> rooms)
+        {
+            _selectedRooms = rooms;
+            string errorRooms = "rooms";
+            if (_selectedRooms.Count > 0 && _errors.TryGetValue(errorRooms, out var _))
+                _errors.Remove(errorRooms);
         }
 
         private void GetAvailableTime()
@@ -144,16 +175,19 @@ namespace CleaningAppWeb.Components.Pages.NewApplication
 
         private void SelectTime(ValueSelectableItem<TimeOnly> value)
         {
+            string errorTimeKey = "time";
             if (value.Value.Hour is < 9 or > 16)
             {
-                SetError("time", "Выбранное время выходит за рамки доступного");
+                SetError(errorTimeKey, "Выбранное время выходит за рамки доступного");
                 return;
             }
 
             _selectedTime = value;
+            if (_errors.TryGetValue(errorTimeKey, out var _))
+                _errors.Remove(errorTimeKey);
         }
 
-        private void CreateApplication()
+        private async Task CreateApplication()
         {
             _errors.Clear();
 
@@ -192,7 +226,7 @@ namespace CleaningAppWeb.Components.Pages.NewApplication
             if (_selectedOffice is null)
                 SetError("office", "Необходимо выбрать офис");
 
-            if (CreateRequest.Rooms.Count == 0)
+            if (_selectedRooms.Count == 0)
                 SetError("rooms", "Необходимо выбрать хотя бы одну комнату");
 
             string dateError = "date";
@@ -204,13 +238,33 @@ namespace CleaningAppWeb.Components.Pages.NewApplication
             string timeError = "time";
             if (_selectedTime is null)
                 SetError(timeError, "Необходимо выбрать время уборки");
-            else if (DateTime.Now.Hour > _selectedTime.Value.Hour)
+            else if (CreateRequest.CleaningDate == DateOnly.MinValue && DateTime.Now.Hour > _selectedTime.Value.Hour)
                 SetError(timeError, "Выбранное время не может быть прошедшим");
             else if (_selectedTime.Value.Hour is < 9 or > 16)
                 SetError(timeError, "Выбранное время выходит за рамки доступного");
 
-            if (CreateRequest.Services.Count == 0)
+            if (_selectedServices.Count == 0)
                 SetError("services", "Необходимо выбрать хотя бы одну услугу");
+
+
+            if (_errors.Count > 0)
+                return;
+
+            if (_setUserData)
+            {
+                CreateRequest.ClientFirstName = _userFirstName;
+                CreateRequest.ClientLastName = _userLastName;
+                CreateRequest.ClientPatronymic = _userPatronymicName;
+                CreateRequest.ClientTelephoneNumber = _userTelephoneNumber;
+            }
+            CreateRequest.OfficeId = _selectedOffice!.Id;
+            CreateRequest.Rooms = _selectedRooms.Select(r => r.Id).ToHashSet();
+            CreateRequest.CleaningTime = _selectedTime!.Value;
+            CreateRequest.Services = _selectedServices;
+
+            var result = await CleaningApplicationsService.CreateNewApplicationAsync(CreateRequest);
+
+            _createTextResult = !string.IsNullOrWhiteSpace(result) ? result : "Заявка успешно создана!";
         }
     }
 }

@@ -13,6 +13,9 @@ namespace CleaningAppWeb.Components.Shared.OfficerApplicationsCard
         [Parameter]
         public string Label { get; set; } = "Заявки";
 
+        [Parameter]
+        public HashSet<CleaningApplicationStatus> Statuses { get; set; } = [];
+
         private readonly List<CleaningApplicationListElement> _applications = [];
 
         protected override async Task OnInitializedAsync()
@@ -29,7 +32,7 @@ namespace CleaningAppWeb.Components.Shared.OfficerApplicationsCard
             _applications,
             () => ApplicationsService.GetApplicationsAsync(
                 _currentPage,
-                selectedStatuses: [CleaningApplicationStatus.Waiting, CleaningApplicationStatus.InWork]
+                selectedStatuses: Statuses
             ),
             append
         );

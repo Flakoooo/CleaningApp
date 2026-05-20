@@ -1,5 +1,6 @@
 ﻿using CleaningAppWeb.Domain.DTOs;
 using CleaningAppWeb.Domain.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace CleaningAppWeb.Data.Services
 {
@@ -14,20 +15,22 @@ namespace CleaningAppWeb.Data.Services
             string? searchText = null
         )
         {
-            IEnumerable<Room> query = [];
-            if (officeId.HasValue)
-                query = _appDbContext.Rooms.Where(r => r.OfficeId == officeId.Value);
-            else
-                query = _appDbContext.Rooms.AsEnumerable();
+            var query = _appDbContext.Rooms
+                .AsNoTracking()
+                .Where(r => !officeId.HasValue || r.OfficeId == officeId.Value);
 
             if (!string.IsNullOrWhiteSpace(searchText))
                 query = query.Where(r => r.IsActive && r.RoomNumber.ToString().Contains(searchText, StringComparison.CurrentCultureIgnoreCase));
 
-            int count = query.Count();
+            int count = await query.CountAsync();
 
-            var roomsDTO = query.Skip((page - 1) * pageSize).Take(pageSize).Select(Room.ToDTO).ToList();
+            var items = await query
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .Select(r => Room.ToDTO(r))
+                .ToListAsync();
 
-            return new ListDataResponse<RoomDTO>(count, roomsDTO);
+            return new ListDataResponse<RoomDTO>(count, items);
         }
     }
 }

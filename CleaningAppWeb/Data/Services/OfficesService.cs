@@ -1,4 +1,6 @@
 ﻿using CleaningAppWeb.Domain.DTOs;
+using CleaningAppWeb.Domain.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace CleaningAppWeb.Data.Services
 {
@@ -12,23 +14,20 @@ namespace CleaningAppWeb.Data.Services
             string? searchText = null
         )
         {
-            var query = _appDbContext.Offices.AsEnumerable();
+            var query = _appDbContext.Offices.AsNoTracking();
 
             if (!string.IsNullOrWhiteSpace(searchText))
                 query = query.Where(o => o.Address.Contains(searchText, StringComparison.CurrentCultureIgnoreCase));
 
-            int count = query.Count();
+            int count = await query.CountAsync();
 
-            query = query.Skip((page - 1) * pageSize).Take(pageSize);
+            var items = await query
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .Select(o => Office.ToDTO(o))
+                .ToListAsync();
 
-            var officesDTO = query.Select(o => new OfficeDTO
-            {
-                Id = o.Id,
-                Address = o.Address,
-                Name = o.Name
-            }).ToList();
-
-            return new ListDataResponse<OfficeDTO>(count, officesDTO);
+            return new ListDataResponse<OfficeDTO>(count, items);
         }
     }
 }

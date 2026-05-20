@@ -1,8 +1,8 @@
-﻿<div class="d-flex">
+﻿<div class="d-flex" style="cursor: pointer;" @onclick="() => SelectCheckbox()">
     <input type="@InputType.Checkbox.ToString().ToLower()"
            checked="@Checked"
            class="form-check-input"
-           @onclick="() => SelectCheckbox()" />
+           style="cursor: pointer;" />
     @if (!string.IsNullOrWhiteSpace(DisplayText))
     {
         <span class="form-check-label ms-2 @DisplayTextCustomClass">

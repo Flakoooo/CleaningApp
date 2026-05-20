@@ -53,25 +53,33 @@ namespace CleaningAppWeb.Components.Shared.RadioDropdown
         {
             if (DataLoaderMethod is not null && DebounceDelay > 0)
             {
-                _searchDebounce = new DebounceHelper(DebounceDelay, async () =>
-                {
-                    await InvokeAsync(async () =>
-                    {
-                        ResetPagination();
-                        await LoadRadioDataAsync();
-                        StateHasChanged();
-                    });
-                });
+                UpdateDebounce();
             }
             await LoadRadioDataAsync();
             MarkAsInitialized();
         }
 
-        protected override void OnParametersSet()
+        private void UpdateDebounce()
+        {
+            _searchDebounce = new DebounceHelper(DebounceDelay, async () =>
+            {
+                await InvokeAsync(async () =>
+                {
+                    ResetPagination();
+                    await LoadRadioDataAsync();
+                    StateHasChanged();
+                });
+            });
+        }
+
+        protected override async Task OnParametersSetAsync()
         {
             _showError = !string.IsNullOrWhiteSpace(ErrorMessage);
 
-            StateHasChanged();
+            UpdateDebounce();
+            await OnSearch();
+
+            await InvokeAsync(StateHasChanged);
         }
 
         protected override async Task OnLoadMoreItemsAsync()

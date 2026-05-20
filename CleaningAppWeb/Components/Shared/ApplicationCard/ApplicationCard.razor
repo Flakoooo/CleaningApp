@@ -19,15 +19,18 @@
             Статус: @GetStatusTranslation()
         </div>
     </div>
-    <div class="w-100 d-flex flex-row py-1 gap-2 px-3 block-info-border-middle">
-        <div class="application-main-text d-flex flex-row gap-1">
-            <i class="bi bi-person-fill"></i>
-            @(_currentRole is RoleType.Officer ? "Исполнитель:" : "Заказчик:")
+    @if (_currentRole is not RoleType.Officer || CleaningApplication.Status > CleaningApplicationStatus.Waiting)
+    {
+        <div class="w-100 d-flex flex-row py-1 gap-2 px-3 block-info-border-middle">
+            <div class="application-main-text d-flex flex-row gap-1">
+                <i class="bi bi-person-fill"></i>
+                @(_currentRole is RoleType.Officer ? "Исполнитель:" : "Заказчик:")
+            </div>
+            <div class="application-sub-text">
+                @(_currentRole is RoleType.Officer ? CleaningApplication.Executor?.ShortFullName : CleaningApplication.ShortClientFullName)
+            </div>
         </div>
-        <div class="application-sub-text">
-            @(_currentRole is RoleType.Officer ? CleaningApplication.Executor?.ShortFullName : CleaningApplication.Initiator?.ShortFullName)
-        </div>
-    </div>
+    }
     <div class="w-100 d-flex flex-row py-1 @(CleaningApplication.Status > CleaningApplicationStatus.InWork ? "block-info-border-middle" : "block-info-border-bottom")">
         <div class="application-info-count">
             <span class="application-main-text">Кабинетов:</span>

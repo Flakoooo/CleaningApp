@@ -16,10 +16,11 @@
             <div class="input-group">
                 <input type="text"
                        @ref="_inputRef"
-                       @oninput="@(async e => await OnSearch(e))"
+                       @oninput="@(async e => await OnSearch(e.Value?.ToString()))"
                        placeholder="@($"{Placeholder}{(SelectedValues.Count > 0 ? $" ({SelectedValues.Count})" : "")}")"
                        class="form-control rounded-end @(_showError ? "is-invalid" : string.Empty)"
-                       @attributes="GetInputAttributes()"
+                       style="@(IsDisabled ? string.Empty : "cursor: pointer;")"
+                       disabled="@IsDisabled"
                        @onclick="OpenDropdown"
                        @onfocus="OpenDropdown"
                        @onkeydown="OnInputKeyDown" />
@@ -30,10 +31,10 @@
             </div>
         </div>
 
-        @if (!_isOpen)
+        @if (!IsDisabled && !_isOpen)
         {
             <i class="input-dropdown-icon bi bi-chevron-down" 
-               style="@(_showError ? "is-right: 30px;" : string.Empty)" 
+               style="@(_showError ? "right: 42px;" : "right: 18px;")"
                @onclick="ToggleDropdown">
             </i>
         }

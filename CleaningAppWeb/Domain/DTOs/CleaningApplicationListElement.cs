@@ -5,7 +5,7 @@ namespace CleaningAppWeb.Domain.DTOs
     public class CleaningApplicationListElement
     {
         public required Guid Id { get; set; }
-        public required UserDTO Initiator { get; set; }
+        public required Guid InitiatorId { get; set; }
         public UserDTO? Executor { get; set; }
         public OfficeDTO? Office { get; set; }
         public CleaningApplicationStatus Status { get; set; }
@@ -20,5 +20,7 @@ namespace CleaningAppWeb.Domain.DTOs
         public string Feedback { get; set; } = string.Empty;
         public int RoomsCount { get; set; }
         public int ServicesCount { get; set; }
+
+        public string ShortClientFullName => $"{ClientLastName} {ClientFirstName.FirstOrDefault()} {ClientPatronymic.FirstOrDefault()}";
     }
 }
