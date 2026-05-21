@@ -19,8 +19,6 @@ namespace CleaningAppWeb.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            base.OnModelCreating(modelBuilder);
-
             modelBuilder.Entity<User>(entity =>
             {
                 entity.Ignore(u => u.Email);
@@ -32,15 +30,18 @@ namespace CleaningAppWeb.Data
                 entity.Ignore(u => u.LockoutEnd);
                 entity.Ignore(u => u.LockoutEnabled);
                 entity.Ignore(u => u.AccessFailedCount);
-                entity.Ignore(u => u.ConcurrencyStamp);
+            });
 
-                entity.Property(u => u.Id).HasColumnName("id");
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<User>(entity =>
+            {
+                entity.Property(u => u.Id).HasColumnName("id").ValueGeneratedNever();
                 entity.Property(u => u.UserName).HasColumnName("login");
                 entity.Property(u => u.PasswordHash).HasColumnName("password_hash");
                 entity.Property(u => u.NormalizedUserName).HasColumnName("normalized_login").IsRequired();
                 entity.Property(u => u.SecurityStamp).HasColumnName("security_stamp").IsRequired();
 
-                entity.Property(e => e.Id).ValueGeneratedNever();
                 entity.Property(e => e.Role).HasConversion<string>();
 
                 entity.HasIndex(u => u.UserName)

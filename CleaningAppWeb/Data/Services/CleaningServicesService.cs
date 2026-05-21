@@ -4,13 +4,19 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CleaningAppWeb.Data.Services
 {
-    public class CleaningServicesService(AppDbContext appDbContext)
+    public class CleaningServicesService(IDbContextFactory<AppDbContext> factory)
     {
-        private readonly AppDbContext _appDbContext = appDbContext;
+        private readonly IDbContextFactory<AppDbContext> _factory = factory;
 
-        public async Task<List<ServiceDTO>> GetAvailableServices() => await _appDbContext.Services
-            .Where(s => s.IsActive)
-            .Select(s => Service.ToDTO(s))
-            .ToListAsync();
+        public async Task<List<ServiceDTO>> GetAvailableServices()
+        {
+            await using var dbContext = await _factory.CreateDbContextAsync();
+
+            return await dbContext.Services
+                .AsNoTracking()
+                .Where(s => s.IsActive)
+                .Select(s => Service.ToDTO(s))
+                .ToListAsync();
+        }
     }
 }

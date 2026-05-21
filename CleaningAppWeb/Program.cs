@@ -28,7 +28,10 @@ namespace CleaningAppWeb
                     using var testConnection = new NpgsqlConnection(connectionString);
                     testConnection.Open();
                     testConnection.Close();
-                    builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connectionString));
+
+                    builder.Services.AddDbContextFactory<AppDbContext>(options =>
+                        options.UseNpgsql(connectionString));
+
                     Console.WriteLine("Подключение к PostgreSQL установлено");
                 }
                 catch (Exception ex)
@@ -37,7 +40,8 @@ namespace CleaningAppWeb
 
 #if DEBUG
                     Console.WriteLine("Переключение на In-Memory базу данных");
-                    builder.Services.AddDbContext<AppDbContext>(options => options.UseInMemoryDatabase("CleaningAppFallback"));
+                    builder.Services.AddDbContextFactory<AppDbContext>(options =>
+                        options.UseInMemoryDatabase("CleaningAppFallback"));
 #else
                     throw new InvalidOperationException("Не удалось подключиться к базе данных PostgreSQL", ex);
 #endif
@@ -47,7 +51,7 @@ namespace CleaningAppWeb
             {
 #if DEBUG
                 Console.WriteLine("Строка подключения не указана. Переключение на In-Memory базу данных");
-                builder.Services.AddDbContext<AppDbContext>(options =>
+                builder.Services.AddDbContextFactory<AppDbContext>(options =>
                     options.UseInMemoryDatabase("CleaningAppFallback"));
 #else
                 throw new InvalidOperationException("Не указана строка подключения к базе данных PostgreSQL");
@@ -107,7 +111,8 @@ namespace CleaningAppWeb
 
             using (var scope = app.Services.CreateScope())
             {
-                var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+                var factory = scope.ServiceProvider.GetRequiredService<IDbContextFactory<AppDbContext>>();
+                var dbContext = factory.CreateDbContext();
 #if DEBUG
                 dbContext.Database.EnsureCreated();
                 await SeedData.Initialize(dbContext, scope.ServiceProvider);

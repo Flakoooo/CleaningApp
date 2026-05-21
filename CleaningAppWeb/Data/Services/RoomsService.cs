@@ -4,9 +4,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CleaningAppWeb.Data.Services
 {
-    public class RoomsService(AppDbContext appDbContext)
+    public class RoomsService(IDbContextFactory<AppDbContext> factory)
     {
-        private readonly AppDbContext _appDbContext = appDbContext;
+        private readonly IDbContextFactory<AppDbContext> _factory = factory;
 
         public async Task<ListDataResponse<RoomDTO>> GetRoomsAsync(
             int page,
@@ -15,7 +15,9 @@ namespace CleaningAppWeb.Data.Services
             string? searchText = null
         )
         {
-            var query = _appDbContext.Rooms
+            await using var dbContext = await _factory.CreateDbContextAsync();
+
+            var query = dbContext.Rooms
                 .AsNoTracking()
                 .Where(r => !officeId.HasValue || r.OfficeId == officeId.Value);
 

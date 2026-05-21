@@ -11,10 +11,10 @@ namespace CleaningAppWeb.Data.Services
 {
     public class CleaningApplicationsService(
         AuthenticationStateProvider provider,
-        AppDbContext appDbContext
+        IDbContextFactory<AppDbContext> factory
     )
     {
-        private readonly AppDbContext _appDbContext = appDbContext;
+        private readonly IDbContextFactory<AppDbContext> _factory = factory;
         private readonly AuthenticationStateProvider _provider = provider;
 
         public async Task<ListDataResponse<CleaningApplicationListElement>> GetApplicationsAsync(
@@ -27,6 +27,8 @@ namespace CleaningAppWeb.Data.Services
             HashSet<TimeOnly>? selectedTime = null
         )
         {
+            await using var dbContext = await _factory.CreateDbContextAsync();
+
             if (page < 1) page = 1;
             if (pageSize < 1) pageSize = 20;
 
@@ -37,7 +39,7 @@ namespace CleaningAppWeb.Data.Services
             if (!Enum.TryParse(currentUser.FindFirst(ClaimTypes.Role)?.Value ?? string.Empty, true, out RoleType userRole))
                 return new ListDataResponse<CleaningApplicationListElement>(0, []);
 
-            var query = _appDbContext.Applications
+            var query = dbContext.Applications
                 .AsNoTracking()
                 .Where(ca => userRole == RoleType.Officer
                     ? ca.InitiatorId == userId
@@ -103,7 +105,9 @@ namespace CleaningAppWeb.Data.Services
             Guid applicationId
         )
         {
-            var application = await _appDbContext.Applications
+            await using var dbContext = await _factory.CreateDbContextAsync();
+
+            var application = await dbContext.Applications
                 .AsNoTracking()
                 .Include(ca => ca.ApplicationRooms.Where(ar => ar.Room.IsActive))
                     .ThenInclude(ar => ar.Room)
@@ -142,13 +146,15 @@ namespace CleaningAppWeb.Data.Services
 
         public async Task<string> CreateNewApplicationAsync(CreateApplicationRequest request)
         {
-            if (!await _appDbContext.Offices.AnyAsync(o => o.Id == request.OfficeId))
+            await using var dbContext = await _factory.CreateDbContextAsync();
+
+            if (!await dbContext.Offices.AnyAsync(o => o.Id == request.OfficeId))
                 return "Указанный офис в данный момент недоступен";
 
-            if (await _appDbContext.Rooms.CountAsync(r => r.IsActive && request.Rooms.Contains(r.Id) && r.OfficeId == request.OfficeId) != request.Rooms.Count)
+            if (await dbContext.Rooms.CountAsync(r => r.IsActive && request.Rooms.Contains(r.Id) && r.OfficeId == request.OfficeId) != request.Rooms.Count)
                 return "Некоторые команты в данный момент недоступны";
 
-            if (await _appDbContext.Services.CountAsync(s => s.IsActive && request.Services.Contains(s.Id)) != request.Services.Count)
+            if (await dbContext.Services.CountAsync(s => s.IsActive && request.Services.Contains(s.Id)) != request.Services.Count)
                 return "Некоторые услуги в данный момент недоступны";
 
             var currentDateTime = DateTime.Now;
@@ -194,11 +200,11 @@ namespace CleaningAppWeb.Data.Services
                 });
             }
 
-            await _appDbContext.Applications.AddAsync(newApplication);
-            await _appDbContext.ApplicationRooms.AddRangeAsync(applicationRooms);
-            await _appDbContext.ApplicationServices.AddRangeAsync(applicationServices);
+            await dbContext.Applications.AddAsync(newApplication);
+            await dbContext.ApplicationRooms.AddRangeAsync(applicationRooms);
+            await dbContext.ApplicationServices.AddRangeAsync(applicationServices);
 
-            await _appDbContext.SaveChangesAsync();
+            await dbContext.SaveChangesAsync();
 
             return string.Empty;
         }

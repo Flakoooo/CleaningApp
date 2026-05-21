@@ -62,6 +62,5 @@ namespace CleaningAppWeb.Domain.Entities
                 TelephoneNumber = user.TelephoneNumber
             };
         }
-
     }
 }

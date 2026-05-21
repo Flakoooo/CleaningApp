@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Components;
+﻿using CleaningAppWeb.Components.Services;
+using Microsoft.AspNetCore.Components;
 
 namespace CleaningAppWeb.Components.Shared.Inputs.Number
 {
@@ -25,8 +26,27 @@ namespace CleaningAppWeb.Components.Shared.Inputs.Number
         [Parameter]
         public bool? IsDisabled { get; set; }
 
+        [Parameter]
+        public int DebounceDelay { get; set; } = 0;
+
+        private T? _value;
+        private DebounceHelper? _searchDebounce;
+
         protected override void OnInitialized()
         {
+            if (DebounceDelay > 0)
+            {
+                _searchDebounce = new DebounceHelper(DebounceDelay, async () =>
+                {
+                    await InvokeAsync(async () =>
+                    {
+                        await ValueHasChanged();
+                        StateHasChanged();
+                    });
+                });
+            }
+
+            _value = Value;
             if (typeof(T).IsValueType && Value.HasValue)
             {
                 if (MinValue.HasValue && Comparer<T>.Default.Compare(Value.Value, MinValue.Value) < 0)
@@ -36,18 +56,30 @@ namespace CleaningAppWeb.Components.Shared.Inputs.Number
             }
         }
 
-        private async Task OnInputChanged(T? value)
+        private async Task ValueHasChanged()
         {
-            if (value.HasValue)
+            if (_value.HasValue)
             {
-                if (MinValue.HasValue && Comparer<T>.Default.Compare(value.Value, MinValue.Value) < 0)
-                    value = MinValue.Value;
-                else if (MaxValue.HasValue && Comparer<T>.Default.Compare(value.Value, MaxValue.Value) > 0)
-                    value = MaxValue.Value;
+                if (MinValue.HasValue && Comparer<T>.Default.Compare(_value.Value, MinValue.Value) < 0)
+                    _value = MinValue.Value;
+                else if (MaxValue.HasValue && Comparer<T>.Default.Compare(_value.Value, MaxValue.Value) > 0)
+                    _value = MaxValue.Value;
             }
 
             if (ValueChanged.HasDelegate)
-                await ValueChanged.InvokeAsync(value);
+                await ValueChanged.InvokeAsync(_value);
+        }
+
+        private async Task OnInputChanged(T? value)
+        {
+            _value = value;
+            if (DebounceDelay > 0 && _searchDebounce is not null)
+            {
+                _searchDebounce.Trigger();
+                return;
+            }
+
+            await ValueHasChanged();
         }
 
         private Dictionary<string, object> GetInputAttributes()

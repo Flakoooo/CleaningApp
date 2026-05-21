@@ -1,5 +1,7 @@
 ﻿window.listDropdown = {
     registerClickOutside: function (element, dotNetHelper) {
+        if (!element) return;
+
         element._dotNetHelper = dotNetHelper;
 
         function isInsideDropdown(target) {
@@ -19,14 +21,16 @@
     },
 
     unregisterClickOutside: function (element) {
+        if (!element) return;
+
         if (element._clickOutsideHandler) {
             document.removeEventListener('click', element._clickOutsideHandler, true);
-            element._clickOutsideHandler = null;
+            delete element._clickOutsideHandler;
         }
 
         if (element._dotNetHelper) {
             element._dotNetHelper.dispose();
-            element._dotNetHelper = null;
+            delete element._dotNetHelper;
         }
     }
 };

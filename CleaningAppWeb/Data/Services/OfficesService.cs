@@ -4,9 +4,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CleaningAppWeb.Data.Services
 {
-    public class OfficesService(AppDbContext appDbContext)
+    public class OfficesService(IDbContextFactory<AppDbContext> factory)
     {
-        private readonly AppDbContext _appDbContext = appDbContext;
+        private readonly IDbContextFactory<AppDbContext> _factory = factory;
 
         public async Task<ListDataResponse<OfficeDTO>> GetOfficesAsync(
             int page,
@@ -14,7 +14,9 @@ namespace CleaningAppWeb.Data.Services
             string? searchText = null
         )
         {
-            var query = _appDbContext.Offices.AsNoTracking();
+            await using var dbContext = await _factory.CreateDbContextAsync();
+
+            var query = dbContext.Offices.AsNoTracking();
 
             if (!string.IsNullOrWhiteSpace(searchText))
                 query = query.Where(o => o.Address.Contains(searchText, StringComparison.CurrentCultureIgnoreCase));

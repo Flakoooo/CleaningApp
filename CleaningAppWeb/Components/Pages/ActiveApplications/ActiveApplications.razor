@@ -25,29 +25,33 @@
                             Label="Статус заявки"
                             AllValues="_filterStatuses"
                             FilterChanged="() => LoadApplicationsAsync()"
-                            @bind-SelectedValues="_selectedStatuses" />
+                            @bind-SelectedValues="_selectedStatuses"
+                            DebounceDelay="500" />
             <CheckboxFilter T="ServiceDTO"
                             AllValues="_filterServices"
                             Label="Тип услуги"
                             FilterChanged="() => LoadApplicationsAsync()"
-                            @bind-SelectedValues="_selectedServices" />
-            @*debounce нужен*@
+                            @bind-SelectedValues="_selectedServices"
+                            DebounceDelay="500" />
             <Number T="int" 
                     Label="Количество кабинетов" 
                     MinValue="0"
                     Value="_roomsCount"
                     ValueChanged="async (value) => await SetRoomsCount(value)"  
+                    DebounceDelay="500"
                     Placeholder="Введите количество кабинетов" />
             <CheckboxFilter T="OfficeDTO"
                             DataLoaderMethod="async (page) => await OfficesService.GetOfficesAsync(page)"
                             @bind-SelectedValues="_selectedOffices"
                             FilterChanged="() => LoadApplicationsAsync()"
-                            Label="Адрес" />
+                            Label="Адрес"
+                            DebounceDelay="500" />
             <CheckboxFilter T="ValueSelectableItem<TimeOnly>" 
                             AllValues="_filterTime" 
                             Label="Время"
                             FilterChanged="() => LoadApplicationsAsync()"
-                            @bind-SelectedValues="_selectedTimes" />
+                            @bind-SelectedValues="_selectedTimes"
+                            DebounceDelay="500" />
             <Button Width="width: 100%;" 
                     Text="Сбросить фильтры"
                     OnButtonClick="ResetFilters" />

@@ -1,4 +1,5 @@
-﻿using CleaningAppWeb.Domain.DTOs;
+﻿using CleaningAppWeb.Components.Services;
+using CleaningAppWeb.Domain.DTOs;
 using Microsoft.AspNetCore.Components;
 
 namespace CleaningAppWeb.Components.Shared.CheckboxFilter
@@ -23,10 +24,26 @@ namespace CleaningAppWeb.Components.Shared.CheckboxFilter
         [Parameter]
         public Func<int, Task<ListDataResponse<T>>>? DataLoaderMethod { get; set; }
 
+        [Parameter]
+        public int DebounceDelay { get; set; } = 0;
+
+        private DebounceHelper? _searchDebounce;
+
         private List<T> _values = [];
 
         protected override async Task OnInitializedAsync()
         {
+            if (DebounceDelay > 0)
+            {
+                _searchDebounce = new DebounceHelper(DebounceDelay, async () =>
+                {
+                    await InvokeAsync(async () =>
+                    {
+                        await FilterChanged.InvokeAsync();
+                    });
+                });
+            }
+
             if (DataLoaderMethod is not null)
             {
                 await LoadCheckboxDataAsync();
@@ -72,7 +89,11 @@ namespace CleaningAppWeb.Components.Shared.CheckboxFilter
                 SelectedValues.Remove(value);
 
             await SelectedValuesChanged.InvokeAsync(SelectedValues);
-            await FilterChanged.InvokeAsync();
+
+            if (DebounceDelay > 0 && _searchDebounce is not null)
+                _searchDebounce.Trigger();
+            else
+                await FilterChanged.InvokeAsync();
         }
     }
 }
