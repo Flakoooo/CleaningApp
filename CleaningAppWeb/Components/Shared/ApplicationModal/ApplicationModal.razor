@@ -1,0 +1,156 @@
+﻿@using CleaningAppWeb.Components.Shared.Button
+@using CleaningAppWeb.Components.Shared.Inputs.TextArea
+@using CleaningAppWeb.Data.Services
+@using CleaningAppWeb.Domain.DTOs
+@using CleaningAppWeb.Domain.Entities
+@using CleaningAppWeb.Domain.Enums
+@using Microsoft.AspNetCore.Components.Authorization
+@using System.Security.Claims
+
+<div @onclick="CloseModal"
+     class="modal-layout modal-layout-@_modalState-active">
+    <div @onclick:stopPropagation="true" class="center-modal application-modal">
+        <div class="application-modal-info">
+            <div class="application-modal-info-left">
+                <div class="application-modal-cleaning">
+                    <div class="d-flex flex-column" style="width: 60%;">
+                        <div style="font-size: 20px;">Услуги</div>
+                        <div class="d-flex flex-column w-100 gap-2 overflow-y-auto pe-3">
+                            @foreach (var service in _application?.Services ?? [])
+                            {
+                                <div class="applicationl-cleaning-info">
+                                    @service.Name
+                                </div>
+                            }
+                        </div>
+                    </div>
+                    <div class="d-flex flex-column" style="width: 40%;">
+                        <div style="font-size: 20px;">Кабинеты</div>
+                        <div class="d-grid overflow-y-auto pe-3" style="grid-template-columns: repeat(3, 1fr); column-gap: 8px; row-gap: 8px;">
+                            @foreach (var room in _application?.Rooms ?? [])
+                            {
+                                <div class="applicationl-cleaning-info">
+                                    @room.RoomNumber
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+                <div class="pe-3">
+                    <div class="application-textarea-label">
+                        Комментарий
+                    </div>
+                    <div class="application-textarea-area">
+                        @(string.IsNullOrWhiteSpace(_application?.Comment) ? "Комментарий не оставлен" : _application.Comment)
+                    </div>
+                </div>
+                @if (_application?.Status > CleaningApplicationStatus.InWork)
+                {
+                    <div class="pe-3">
+                        <div class="application-textarea-label">
+                            Отзыв
+                        </div>
+                        <div class="application-textarea-area">
+                            @(string.IsNullOrWhiteSpace(_application?.Feedback) ? "Отзыв не оставлен" : _application.Feedback)
+                        </div>
+                    </div>
+                }
+            </div>
+            <div class="application-modal-info-right">
+                <div class="application-status">
+                    @GetStatusTranslation()
+                </div>
+                <div class="block-info-border-top d-flex flex-column">
+                    <div class="d-flex flex-row gap-1" style="color: #312B2B;">
+                        <i class="bi bi-person-fill"></i>
+                        Заказчик:
+                    </div>
+                    <div style="color: #6B6B6B;">@_application?.ShortClientFullName</div>
+                </div>
+                <div class="block-info-border-middle d-flex flex-column">
+                    <div class="d-flex flex-row gap-1" style="color: #312B2B;">
+                        <i class="bi bi-person-fill"></i>
+                        Исполнитель:
+                    </div>
+                    <div style="color: #6B6B6B;">@(_application?.Executor is not null ? _application.Executor.ShortFullName : "В поиске")</div>
+                </div>
+                <div class="block-info-border-middle d-flex flex-column">
+                    <div class="d-flex flex-row gap-1" style="color: #312B2B;">
+                        <i class="bi bi-telephone-fill"></i>
+                        Телефон:
+                    </div>
+                    <div style="color: #6B6B6B;">@_application?.ClientTelephoneNumber</div>
+                </div>
+                <div class="block-info-border-middle d-flex flex-column">
+                    <div class="d-flex flex-row gap-1" style="color: #312B2B;">
+                        <i class="bi bi-building-fill"></i>
+                        Адрес:
+                    </div>
+                    <div style="color: #6B6B6B;">@_application?.Office.Address</div>
+                </div>
+                <div class="block-info-border-@(_application?.Status > CleaningApplicationStatus.InWork ? "middle" : "bottom") d-flex flex-column">
+                    <div class="d-flex flex-row gap-1" style="color: #312B2B;">
+                        <i class="bi bi-clock-fill"></i>
+                        Дата и Время:
+                    </div>
+                    <div style="color: #6B6B6B;">@_application?.CleaningDate @_application?.CleaningTime</div>
+                </div>
+                @if (_application?.Status > CleaningApplicationStatus.InWork)
+                {
+                    <div class="block-info-border-@(_application?.Status > CleaningApplicationStatus.InWork ? "middle" : "bottom") d-flex flex-column">
+                        <div style="color: #312B2B;">Оценка:</div>
+                        @if (_application?.Status is CleaningApplicationStatus.Done)
+                        {
+                            <div style="color: #6B6B6B;">@(_currentRole is RoleType.Cleaner ? "Ожидает оценки" : "Можно оценить работу!")</div>
+                        }
+                        else if (_application?.Status is CleaningApplicationStatus.Rated)
+                        {
+                            <div class="d-flex flex-row" style="color: #312B2B;">
+                                @for (int i = 0; i < 5; ++i)
+                                {
+                                    <i class="bi bi-star@(i < _application?.Rating ? "-fill" : string.Empty)"></i>
+                                }
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+        <div class="application-modal-buttons">
+            @if (_currentRole is RoleType.Cleaner)
+            {
+                @if (_application?.Status == CleaningApplicationStatus.Waiting)
+                {
+                    <Button Text="Начать"
+                            Width="width: 10vw;"
+                            Style="padding: 2px 4px 2px 4px;"
+                            FontSize="20"
+                            OnButtonClick="() => UpdateApplicationStatus(CleaningApplicationStatus.InWork)" />
+                }
+                @if (_application?.Status == CleaningApplicationStatus.InWork)
+                {
+                    <Button Text="Закончить"
+                            Width="width: 10vw;"
+                            Style="padding: 2px 4px 2px 4px;"
+                            FontSize="20"
+                            OnButtonClick="() => UpdateApplicationStatus(CleaningApplicationStatus.Done)" />
+                }
+            }
+            else if (_currentRole is RoleType.Officer)
+            {
+                @if (_application?.Status == CleaningApplicationStatus.Done)
+                {
+                    <Button Text="Оценить"
+                            Width="width: 10vw;"
+                            Style="padding: 2px 4px 2px 4px;"
+                            FontSize="20" />
+                }
+            }
+            <Button Text="Закрыть" 
+                    Width="" 
+                    Style="padding: 2px 8px 2px 8px;" 
+                    FontSize="20"
+                    OnButtonClick="CloseModal" />
+        </div>
+    </div>
+</div>

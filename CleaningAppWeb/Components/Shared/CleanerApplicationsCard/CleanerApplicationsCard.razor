@@ -1,0 +1,62 @@
+﻿@using CleaningAppWeb.Components.Models
+@using CleaningAppWeb.Components.Services
+@using CleaningAppWeb.Components.Shared.ApplicationCard
+@using CleaningAppWeb.Components.Shared.ApplicationModal
+@using CleaningAppWeb.Components.Shared.Button
+@using CleaningAppWeb.Components.Shared.CheckboxFilter
+@using CleaningAppWeb.Components.Shared.Inputs.Number
+@using CleaningAppWeb.Domain.DTOs
+@using CleaningAppWeb.Domain.Enums
+@inherits PaginationLoader
+
+<div class="acitve-applications-card">
+    <div class="active-applications-list" @ref="_tableContainer">
+        @foreach (var application in _applications)
+        {
+            <ApplicationCard CleaningApplication="application"
+                                OnCardClick="() => SelectApplication(application.Id)" />
+        }
+    </div>
+    <div class="active-applications-filter">
+        <CheckboxFilter T="ValueSelectableItem<CleaningApplicationStatus>" 
+                        Label="Статус заявки"
+                        AllValues="_filterStatuses"
+                        FilterChanged="() => LoadApplicationsAsync()"
+                        @bind-SelectedValues="_selectedStatuses"
+                        DebounceDelay="500" />
+        <CheckboxFilter T="ServiceDTO"
+                        AllValues="_filterServices"
+                        Label="Тип услуги"
+                        FilterChanged="() => LoadApplicationsAsync()"
+                        @bind-SelectedValues="_selectedServices"
+                        DebounceDelay="500" />
+        <Number T="int" 
+                Label="Количество кабинетов" 
+                MinValue="0"
+                Value="_roomsCount"
+                ValueChanged="async (value) => await SetRoomsCount(value)"  
+                DebounceDelay="500"
+                Placeholder="Введите количество кабинетов" />
+        <CheckboxFilter T="OfficeDTO"
+                        DataLoaderMethod="async (page) => await OfficesService.GetOfficesAsync(page)"
+                        @bind-SelectedValues="_selectedOffices"
+                        FilterChanged="() => LoadApplicationsAsync()"
+                        Label="Адрес"
+                        DebounceDelay="500" />
+        <CheckboxFilter T="ValueSelectableItem<TimeOnly>" 
+                        AllValues="_filterTime" 
+                        Label="Время"
+                        FilterChanged="() => LoadApplicationsAsync()"
+                        @bind-SelectedValues="_selectedTimes"
+                        DebounceDelay="500" />
+        <Button Width="width: 100%;" 
+                Text="Сбросить фильтры"
+                OnButtonClick="ResetFilters" />
+    </div>
+</div>
+
+@if (_applicationModalActive)
+{
+    <ApplicationModal ApplicationId="_selectedApplicationId"
+                      OnModalClose="ModalClose"/>
+}

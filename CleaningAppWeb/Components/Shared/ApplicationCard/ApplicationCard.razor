@@ -2,7 +2,7 @@
 @using CleaningAppWeb.Domain.Enums
 @using Microsoft.AspNetCore.Components.Authorization
 @using System.Security.Claims
-<div class="application">
+<div class="application" @onclick="CardClick">
     <div class="d-flex flex-column p-3 pb-2 block-info-border-top">
         <div class="application-main-text d-flex flex-row gap-1">
             <i class="bi bi-building-fill"></i>
@@ -71,6 +71,9 @@
     [Parameter]
     public required CleaningApplicationListElement CleaningApplication { get; set; }
 
+    [Parameter]
+    public EventCallback<Guid> OnCardClick { get; set; }
+
     private RoleType? _currentRole = null;
 
     protected override async Task OnInitializedAsync()
@@ -89,4 +92,10 @@
         CleaningApplicationStatus.Rated => "Оценена",
         _ => CleaningApplication.Status.ToString()
     };
+
+    private void CardClick()
+    {
+        if (OnCardClick.HasDelegate)
+            OnCardClick.InvokeAsync(CleaningApplication.Id);
+    }
 }

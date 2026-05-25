@@ -91,6 +91,7 @@ namespace CleaningAppWeb.Components.Pages.NewApplication
         private void SelectOffice(OfficeDTO officeDTO)
         {
             _selectedOffice = officeDTO;
+            _selectedRooms.Clear();
             string errorOffice = "office";
             if (_selectedOffice is not null && _errors.TryGetValue(errorOffice, out var _))
                 _errors.Remove(errorOffice);

@@ -18,9 +18,15 @@ namespace CleaningAppWeb.Components.Shared.OfficerApplicationsCard
 
         private readonly List<CleaningApplicationListElement> _applications = [];
 
+        private bool _applicationModalActive = false;
+        private Guid? _selectedApplicationId = null;
+
         protected override async Task OnInitializedAsync()
         {
+            ApplicationsService.OnApplicationStatusHasChanged += ApplicationStatusHasCnhaged;
+
             await LoadApplicationsAsync();
+            MarkAsInitialized();
         }
 
         protected override int GetCurrentItemsCount() => _applications.Count;
@@ -36,5 +42,35 @@ namespace CleaningAppWeb.Components.Shared.OfficerApplicationsCard
             ),
             append
         );
+
+        private void SelectApplication(Guid id)
+        {
+            _selectedApplicationId = id;
+            _applicationModalActive = true;
+            StateHasChanged();
+        }
+
+        private void ModalClose()
+        {
+            _applicationModalActive = false;
+            _selectedApplicationId = null;
+            StateHasChanged();
+        }
+
+        private void ApplicationStatusHasCnhaged(Guid applicationId, CleaningApplicationStatus newStatus)
+        {
+            var applicationForUpdate = _applications.FirstOrDefault(a => a.Id == applicationId);
+            if (applicationForUpdate is null) return;
+
+            applicationForUpdate.Status = newStatus;
+            StateHasChanged();
+        }
+
+        protected override async ValueTask DisposeAsyncCore()
+        {
+            ApplicationsService.OnApplicationStatusHasChanged -= ApplicationStatusHasCnhaged;
+
+            await ValueTask.CompletedTask;
+        }
     }
 }

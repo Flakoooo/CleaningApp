@@ -76,3 +76,11 @@ html, body {
 .invalid-feedback {
     color: #312B2B;
 }
+
+.cleaner-applications-page {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}

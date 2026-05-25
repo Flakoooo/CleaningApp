@@ -1,4 +1,4 @@
-﻿@page "/active-applications"
+﻿@page "/applications-history"
 @attribute [Authorize(Roles = "Cleaner")]
 @using CleaningAppWeb.Components.Models
 @using CleaningAppWeb.Components.Services
@@ -13,8 +13,8 @@
 @using Microsoft.AspNetCore.Authorization
 @rendermode InteractiveServer
 
-<PageTitle>Активные заявки</PageTitle>
+<PageTitle>История заявок</PageTitle>
 
 <div class="cleaner-applications-page">
-    <CleanerApplicationsCard Statuses="[CleaningApplicationStatus.Waiting, CleaningApplicationStatus.InWork]" />
+    <CleanerApplicationsCard Statuses="[CleaningApplicationStatus.Done, CleaningApplicationStatus.Rated]" />
 </div>

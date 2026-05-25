@@ -18,7 +18,7 @@
         else if (_currentRole is RoleType.Cleaner)
         {
             <Button Text="Активные заявки" OnButtonClick="@(() => NavigateTo("/active-applications"))" />
-            <Button Text="История заявок" />
+            <Button Text="История заявок" OnButtonClick="@(() => NavigateTo("/applications-history"))" />
         }
     </div>
     <div class="navigation-user-fullname">
@@ -74,6 +74,7 @@
             "created-applications" => "Созданные заявки",
             "new-application" => "Создание заявки",
             "active-applications" => "Активные заявки",
+            "applications-history" => "История заявок",
             _ => "Неизвестная страница"
         };
     }

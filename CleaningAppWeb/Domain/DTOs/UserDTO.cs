@@ -13,6 +13,6 @@ namespace CleaningAppWeb.Domain.DTOs
         public string TelephoneNumber { get; set; } = string.Empty;
 
 
-        public string ShortFullName => $"{LastName} {FirstName.FirstOrDefault()} {Patronymic.FirstOrDefault()}";
+        public string ShortFullName => $"{LastName} {FirstName.FirstOrDefault()}. {Patronymic.FirstOrDefault()}.";
     }
 }

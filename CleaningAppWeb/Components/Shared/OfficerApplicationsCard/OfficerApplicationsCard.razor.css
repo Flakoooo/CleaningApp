@@ -12,5 +12,7 @@
     padding: 8px;
     border-radius: 8px;
     overflow-y: auto;
+    display: flex;
+    flex-direction: column;
     gap: 10px;
 }

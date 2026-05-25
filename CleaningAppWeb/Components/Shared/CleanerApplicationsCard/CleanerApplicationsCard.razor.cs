@@ -4,9 +4,9 @@ using CleaningAppWeb.Domain.DTOs;
 using CleaningAppWeb.Domain.Enums;
 using Microsoft.AspNetCore.Components;
 
-namespace CleaningAppWeb.Components.Pages.ActiveApplications
+namespace CleaningAppWeb.Components.Shared.CleanerApplicationsCard
 {
-    public partial class ActiveApplications
+    public partial class CleanerApplicationsCard
     {
         [Inject]
         private CleaningApplicationsService ApplicationsService { get; set; } = null!;
@@ -20,10 +20,12 @@ namespace CleaningAppWeb.Components.Pages.ActiveApplications
         [Parameter]
         public HashSet<CleaningApplicationStatus> Statuses { get; set; } = [];
 
+        private bool _applicationModalActive = false;
+        private Guid? _selectedApplicationId = null;
 
         private readonly List<CleaningApplicationListElement> _applications = [];
 
-        private List<ValueSelectableItem<CleaningApplicationStatus>> _filterStatuses = [];
+        private readonly List<ValueSelectableItem<CleaningApplicationStatus>> _filterStatuses = [];
         private HashSet<ValueSelectableItem<CleaningApplicationStatus>> _selectedStatuses = [];
 
         private List<ServiceDTO> _filterServices = [];
@@ -33,16 +35,15 @@ namespace CleaningAppWeb.Components.Pages.ActiveApplications
 
         private HashSet<OfficeDTO> _selectedOffices = [];
 
-        private List<ValueSelectableItem<TimeOnly>> _filterTime = [];
+        private readonly List<ValueSelectableItem<TimeOnly>> _filterTime = [];
         private HashSet<ValueSelectableItem<TimeOnly>> _selectedTimes = [];
 
         protected override async Task OnInitializedAsync()
         {
-            _filterStatuses = 
-            [
-                new ValueSelectableItem<CleaningApplicationStatus>(CleaningApplicationStatus.Waiting, GetStatusTranslation(CleaningApplicationStatus.Waiting)),
-                new ValueSelectableItem<CleaningApplicationStatus>(CleaningApplicationStatus.InWork, GetStatusTranslation(CleaningApplicationStatus.InWork))
-            ];
+            ApplicationsService.OnApplicationStatusHasChanged += ApplicationStatusHasCnhaged;
+
+            foreach (var status in Statuses)
+                _filterStatuses.Add(new ValueSelectableItem<CleaningApplicationStatus>(status, GetStatusTranslation(status)));
 
             _filterServices = await CleaningServicesService.GetAvailableServices();
 
@@ -50,6 +51,7 @@ namespace CleaningAppWeb.Components.Pages.ActiveApplications
                 _filterTime.Add(new ValueSelectableItem<TimeOnly>(new TimeOnly(i, 0, 0), $"{i}:00"));
 
             await LoadApplicationsAsync();
+            MarkAsInitialized();
         }
 
         private static string GetStatusTranslation(CleaningApplicationStatus status) => status switch
@@ -73,7 +75,7 @@ namespace CleaningAppWeb.Components.Pages.ActiveApplications
                 _applications,
                 () => ApplicationsService.GetApplicationsAsync(
                     _currentPage,
-                    selectedStatuses: statuses.Count > 0 ? statuses : [CleaningApplicationStatus.Waiting, CleaningApplicationStatus.InWork],
+                    selectedStatuses: statuses.Count > 0 ? statuses : Statuses,
                     selectedOffices: _selectedOffices.Select(o => o.Id).ToHashSet(),
                     selectedServices: _selectedServices.Select(s => s.Id).ToHashSet(),
                     roomsCount: _roomsCount,
@@ -98,6 +100,44 @@ namespace CleaningAppWeb.Components.Pages.ActiveApplications
             _selectedTimes.Clear();
 
             StateHasChanged();
+        }
+
+        private void SelectApplication(Guid id)
+        {
+            _selectedApplicationId = id;
+            _applicationModalActive = true;
+            StateHasChanged();
+        }
+
+        private void ModalClose()
+        {
+            _applicationModalActive = false;
+            _selectedApplicationId = null;
+            StateHasChanged();
+        }
+
+        private void ApplicationStatusHasCnhaged(Guid applicationId, CleaningApplicationStatus newStatus)
+        {
+            var applicationForUpdate = _applications.FirstOrDefault(a => a.Id == applicationId);
+            if (applicationForUpdate is null) return;
+
+            if (newStatus is CleaningApplicationStatus.Waiting or CleaningApplicationStatus.InWork)
+            {
+                applicationForUpdate.Status = newStatus;
+            }
+            else
+            {
+                _applications.Remove(applicationForUpdate);
+            }
+
+            StateHasChanged();
+        }
+
+        protected override async ValueTask DisposeAsyncCore()
+        {
+            ApplicationsService.OnApplicationStatusHasChanged -= ApplicationStatusHasCnhaged;
+
+            await ValueTask.CompletedTask;
         }
     }
 }

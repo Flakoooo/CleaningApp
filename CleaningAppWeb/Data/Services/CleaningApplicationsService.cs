@@ -17,6 +17,8 @@ namespace CleaningAppWeb.Data.Services
         private readonly IDbContextFactory<AppDbContext> _factory = factory;
         private readonly AuthenticationStateProvider _provider = provider;
 
+        public event Action<Guid, CleaningApplicationStatus>? OnApplicationStatusHasChanged;
+
         public async Task<ListDataResponse<CleaningApplicationListElement>> GetApplicationsAsync(
             int page,
             int pageSize = 20,
@@ -177,7 +179,8 @@ namespace CleaningAppWeb.Data.Services
                 ClientPatronymic = request.ClientPatronymic,
                 ClientTelephoneNumber = request.ClientTelephoneNumber,
                 CleaningDate = request.CleaningDate,
-                CleaningTime = request.CleaningTime
+                CleaningTime = request.CleaningTime,
+                Comment = string.IsNullOrWhiteSpace(request.Comment) ? null : request.Comment
             };
 
             var applicationRooms = new List<ApplicationRoom>();
@@ -207,6 +210,31 @@ namespace CleaningAppWeb.Data.Services
             await dbContext.SaveChangesAsync();
 
             return string.Empty;
+        }
+
+        public async Task<bool> UpdateApplicationStatus(Guid applicationId, CleaningApplicationStatus newStatus)
+        {
+            await using var dbContext = await _factory.CreateDbContextAsync();
+
+            var currentUser = (await _provider.GetAuthenticationStateAsync()).User;
+            if (!Guid.TryParse(currentUser.FindFirst(ClaimTypes.NameIdentifier)?.Value, out Guid userId))
+                return false;
+
+            if (!Enum.TryParse(currentUser.FindFirst(ClaimTypes.Role)?.Value ?? string.Empty, true, out RoleType userRole))
+                return false;
+
+            var applicationForUpdate =  await dbContext.Applications.FirstOrDefaultAsync(a => a.Id == applicationId);
+            if (applicationForUpdate is null) return false;
+
+            if (newStatus is CleaningApplicationStatus.InWork && userRole is RoleType.Cleaner)
+                applicationForUpdate.ExecutorId = userId;
+
+            applicationForUpdate.Status = newStatus;
+
+            await dbContext.SaveChangesAsync();
+
+            OnApplicationStatusHasChanged?.Invoke(applicationId, newStatus);
+            return true;
         }
     }
 }
