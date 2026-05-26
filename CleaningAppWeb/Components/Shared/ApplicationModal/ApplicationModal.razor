@@ -1,5 +1,6 @@
 ﻿@using CleaningAppWeb.Components.Shared.Button
 @using CleaningAppWeb.Components.Shared.Inputs.TextArea
+@using CleaningAppWeb.Components.Shared.RatingApplicationModal
 @using CleaningAppWeb.Data.Services
 @using CleaningAppWeb.Domain.DTOs
 @using CleaningAppWeb.Domain.Entities
@@ -106,7 +107,7 @@
                         else if (_application?.Status is CleaningApplicationStatus.Rated)
                         {
                             <div class="d-flex flex-row" style="color: #312B2B;">
-                                @for (int i = 0; i < 5; ++i)
+                                @for (byte i = 0; i < 5; ++i)
                                 {
                                     <i class="bi bi-star@(i < _application?.Rating ? "-fill" : string.Empty)"></i>
                                 }
@@ -143,7 +144,8 @@
                     <Button Text="Оценить"
                             Width="width: 10vw;"
                             Style="padding: 2px 4px 2px 4px;"
-                            FontSize="20" />
+                            FontSize="20"
+                            OnButtonClick="OpenRatingModal" />
                 }
             }
             <Button Text="Закрыть" 
@@ -154,3 +156,9 @@
         </div>
     </div>
 </div>
+
+@if (_startRating)
+{
+    <RatingApplicationModal OnModalClose="CloseRatingModal" 
+                            OnApplicationRated="(request) => ApplicationHasRated(request)" />
+}

@@ -106,14 +106,12 @@ namespace CleaningAppWeb.Components.Shared.CleanerApplicationsCard
         {
             _selectedApplicationId = id;
             _applicationModalActive = true;
-            StateHasChanged();
         }
 
         private void ModalClose()
         {
             _applicationModalActive = false;
             _selectedApplicationId = null;
-            StateHasChanged();
         }
 
         private void ApplicationStatusHasCnhaged(Guid applicationId, CleaningApplicationStatus newStatus)
@@ -122,13 +120,9 @@ namespace CleaningAppWeb.Components.Shared.CleanerApplicationsCard
             if (applicationForUpdate is null) return;
 
             if (newStatus is CleaningApplicationStatus.Waiting or CleaningApplicationStatus.InWork)
-            {
                 applicationForUpdate.Status = newStatus;
-            }
             else
-            {
                 _applications.Remove(applicationForUpdate);
-            }
 
             StateHasChanged();
         }

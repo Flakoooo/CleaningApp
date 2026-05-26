@@ -1,0 +1,26 @@
+﻿@using CleaningAppWeb.Components.Shared.Button
+@using CleaningAppWeb.Components.Shared.Inputs.TextArea
+@using CleaningAppWeb.Domain.Requests
+<div @onclick="CloseModal"
+     class="modal-layout modal-layout-@_modalState-active">
+    <div @onclick:stopPropagation="true" class="center-modal rating-modal">
+        <div style="font-size: 24px;">Оценка работы</div>
+        <div>Оцените проделанную работу</div>
+        <div class="d-flex flex-row gap-2" style="font-size: 32px;">
+            @for (byte i = 0; i < 5; ++i)
+            {
+                var index = (byte)(i + 1);
+                <i class="bi bi-star@(i < RatingRequest.Rating ? "-fill" : string.Empty)"
+                   style="cursor: pointer;"
+                   @onclick="() => SelectRating(index)"></i>
+            }
+        </div>
+        <div>Оставьте отзыв (по желанию)</div>
+        <TextArea Placeholder="Ваш отзыв" 
+                  Style="resize: none;" 
+                  @bind-Value="RatingRequest.Feedback" />
+        <Button Text="Оценить" 
+                Width="width: 95%;"
+                OnButtonClick="RateApplication" />
+    </div>
+</div>

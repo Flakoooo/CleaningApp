@@ -1,6 +1,7 @@
 ﻿using CleaningAppWeb.Data.Services;
 using CleaningAppWeb.Domain.DTOs;
 using CleaningAppWeb.Domain.Enums;
+using CleaningAppWeb.Domain.Requests;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using System.Security.Claims;
@@ -22,6 +23,8 @@ namespace CleaningAppWeb.Components.Shared.ApplicationModal
         public Guid? ApplicationId { get; set; }
 
         private string _modalState = "enter";
+
+        private bool _startRating = false;
 
         private RoleType? _currentRole = null;
 
@@ -61,11 +64,8 @@ namespace CleaningAppWeb.Components.Shared.ApplicationModal
         {
             if (_application is not null)
             {
-                var result = await ApplicationsService.UpdateApplicationStatus(_application.Id, newStatus);
-                if (!result)
-                {
-                    return;
-                }
+                var result = await ApplicationsService.UpdateApplicationStatusAsync(_application.Id, newStatus);
+                if (!result) return;
 
                 _application.Status = newStatus;
                 if (newStatus is CleaningApplicationStatus.InWork)
@@ -86,6 +86,25 @@ namespace CleaningAppWeb.Components.Shared.ApplicationModal
 
                 StateHasChanged();
             }
+        }
+
+        private void OpenRatingModal() => _startRating = true;
+
+        private void CloseRatingModal() => _startRating = false;
+
+        private async Task ApplicationHasRated(RatingApplicationRequest request)
+        {
+            if (_application is null) return;
+
+            request.ApplicationId = _application.Id;
+
+            var result = await ApplicationsService.RateApplicationAsync(request);
+            if (!result) return;
+
+            _application.Status = CleaningApplicationStatus.Rated;
+            _application.Rating = request.Rating;
+            _application.Feedback = request.Feedback ?? string.Empty;
+            StateHasChanged();
         }
     }
 }

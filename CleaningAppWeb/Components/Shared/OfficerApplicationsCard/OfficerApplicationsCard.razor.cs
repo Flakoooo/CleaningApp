@@ -1,6 +1,7 @@
 ﻿using CleaningAppWeb.Data.Services;
 using CleaningAppWeb.Domain.DTOs;
 using CleaningAppWeb.Domain.Enums;
+using CleaningAppWeb.Domain.Requests;
 using Microsoft.AspNetCore.Components;
 
 namespace CleaningAppWeb.Components.Shared.OfficerApplicationsCard
@@ -23,7 +24,7 @@ namespace CleaningAppWeb.Components.Shared.OfficerApplicationsCard
 
         protected override async Task OnInitializedAsync()
         {
-            ApplicationsService.OnApplicationStatusHasChanged += ApplicationStatusHasCnhaged;
+            ApplicationsService.OnApplicationHasRated += ApplicationHasRated;
 
             await LoadApplicationsAsync();
             MarkAsInitialized();
@@ -47,28 +48,27 @@ namespace CleaningAppWeb.Components.Shared.OfficerApplicationsCard
         {
             _selectedApplicationId = id;
             _applicationModalActive = true;
-            StateHasChanged();
         }
 
         private void ModalClose()
         {
             _applicationModalActive = false;
             _selectedApplicationId = null;
-            StateHasChanged();
         }
 
-        private void ApplicationStatusHasCnhaged(Guid applicationId, CleaningApplicationStatus newStatus)
+        private void ApplicationHasRated(RatingApplicationRequest request)
         {
-            var applicationForUpdate = _applications.FirstOrDefault(a => a.Id == applicationId);
+            var applicationForUpdate = _applications.FirstOrDefault(a => a.Id == request.ApplicationId);
             if (applicationForUpdate is null) return;
 
-            applicationForUpdate.Status = newStatus;
+            applicationForUpdate.Status = CleaningApplicationStatus.Rated;
+            applicationForUpdate.Rating = request.Rating;
             StateHasChanged();
         }
 
         protected override async ValueTask DisposeAsyncCore()
         {
-            ApplicationsService.OnApplicationStatusHasChanged -= ApplicationStatusHasCnhaged;
+            ApplicationsService.OnApplicationHasRated -= ApplicationHasRated;
 
             await ValueTask.CompletedTask;
         }

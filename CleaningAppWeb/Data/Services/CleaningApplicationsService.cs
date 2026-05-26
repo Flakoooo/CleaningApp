@@ -18,6 +18,7 @@ namespace CleaningAppWeb.Data.Services
         private readonly AuthenticationStateProvider _provider = provider;
 
         public event Action<Guid, CleaningApplicationStatus>? OnApplicationStatusHasChanged;
+        public event Action<RatingApplicationRequest>? OnApplicationHasRated;
 
         public async Task<ListDataResponse<CleaningApplicationListElement>> GetApplicationsAsync(
             int page,
@@ -212,7 +213,7 @@ namespace CleaningAppWeb.Data.Services
             return string.Empty;
         }
 
-        public async Task<bool> UpdateApplicationStatus(Guid applicationId, CleaningApplicationStatus newStatus)
+        public async Task<bool> UpdateApplicationStatusAsync(Guid applicationId, CleaningApplicationStatus newStatus)
         {
             await using var dbContext = await _factory.CreateDbContextAsync();
 
@@ -234,6 +235,30 @@ namespace CleaningAppWeb.Data.Services
             await dbContext.SaveChangesAsync();
 
             OnApplicationStatusHasChanged?.Invoke(applicationId, newStatus);
+            return true;
+        }
+
+        public async Task<bool> RateApplicationAsync(RatingApplicationRequest request)
+        {
+            await using var dbContext = await _factory.CreateDbContextAsync();
+
+            var currentUser = (await _provider.GetAuthenticationStateAsync()).User;
+            if (!Guid.TryParse(currentUser.FindFirst(ClaimTypes.NameIdentifier)?.Value, out Guid userId))
+                return false;
+
+            if (!Enum.TryParse(currentUser.FindFirst(ClaimTypes.Role)?.Value ?? string.Empty, true, out RoleType userRole) && userRole is not RoleType.Officer)
+                return false;
+
+            var applicationForUpdate = await dbContext.Applications.FirstOrDefaultAsync(a => a.Id == request.ApplicationId);
+            if (applicationForUpdate is null) return false;
+
+            applicationForUpdate.Rating = request.Rating;
+            applicationForUpdate.Feedback = request.Feedback;
+            applicationForUpdate.Status = CleaningApplicationStatus.Rated;
+
+            await dbContext.SaveChangesAsync();
+
+            OnApplicationHasRated?.Invoke(request);
             return true;
         }
     }
