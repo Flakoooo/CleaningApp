@@ -1,5 +1,5 @@
 ﻿.btn {
-    background: #6B6B6B;
+    background-color: #6B6B6B;
     border-color: #6B6B6B;
     color: #FFFFFF;
     border-radius: 8px;
@@ -8,19 +8,19 @@
 }
 
     .btn:hover {
-        background: #6B6B6B;
+        background-color: color-mix(in srgb, #6B6B6B 70%, #000000 30%);
         border-color: #6B6B6B;
         color: #FFFFFF;
     }
 
     .btn:active {
-        background: #312B2B;
+        background-color: #312B2B;
         border-color: #312B2B;
         color: #FFFFFF;
     }
 
     .btn:disabled {
-        background: #312B2B;
+        background-color: #312B2B;
         border-color: #312B2B;
         color: #6B6B6B;
     }

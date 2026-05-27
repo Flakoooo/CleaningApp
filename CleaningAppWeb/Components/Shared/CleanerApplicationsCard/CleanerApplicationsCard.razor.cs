@@ -40,7 +40,7 @@ namespace CleaningAppWeb.Components.Shared.CleanerApplicationsCard
 
         protected override async Task OnInitializedAsync()
         {
-            ApplicationsService.OnApplicationStatusHasChanged += ApplicationStatusHasCnhaged;
+            ApplicationsService.OnApplicationStatusHasChanged += ApplicationStatusHasChanged;
 
             foreach (var status in Statuses)
                 _filterStatuses.Add(new ValueSelectableItem<CleaningApplicationStatus>(status, GetStatusTranslation(status)));
@@ -85,13 +85,20 @@ namespace CleaningAppWeb.Components.Shared.CleanerApplicationsCard
             );
         }
 
-        private async Task SetRoomsCount(int? value)
+        private async Task FilterHasChanged()
         {
-            _roomsCount = value;
+            ResetPagination();
             await LoadApplicationsAsync();
         }
 
-        private void ResetFilters()
+        private async Task SetRoomsCount(int? value)
+        {
+            _roomsCount = value;
+
+            await FilterHasChanged();
+        }
+
+        private async Task ResetFilters()
         {
             _selectedStatuses.Clear();
             _selectedServices.Clear();
@@ -99,7 +106,7 @@ namespace CleaningAppWeb.Components.Shared.CleanerApplicationsCard
             _selectedOffices.Clear();
             _selectedTimes.Clear();
 
-            StateHasChanged();
+            await FilterHasChanged();
         }
 
         private void SelectApplication(Guid id)
@@ -114,7 +121,7 @@ namespace CleaningAppWeb.Components.Shared.CleanerApplicationsCard
             _selectedApplicationId = null;
         }
 
-        private void ApplicationStatusHasCnhaged(Guid applicationId, CleaningApplicationStatus newStatus)
+        private void ApplicationStatusHasChanged(Guid applicationId, CleaningApplicationStatus newStatus)
         {
             var applicationForUpdate = _applications.FirstOrDefault(a => a.Id == applicationId);
             if (applicationForUpdate is null) return;
@@ -129,7 +136,7 @@ namespace CleaningAppWeb.Components.Shared.CleanerApplicationsCard
 
         protected override async ValueTask DisposeAsyncCore()
         {
-            ApplicationsService.OnApplicationStatusHasChanged -= ApplicationStatusHasCnhaged;
+            ApplicationsService.OnApplicationStatusHasChanged -= ApplicationStatusHasChanged;
 
             await ValueTask.CompletedTask;
         }

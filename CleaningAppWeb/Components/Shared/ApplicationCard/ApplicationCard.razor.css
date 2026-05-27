@@ -1,7 +1,17 @@
 ﻿.application {
     background: #F6D200;
     border-radius: 8px;
+    transition: background-color 0.3s ease;
+    cursor: pointer;
 }
+
+    .application:hover {
+        background: color-mix(in srgb, #F6D200 95%, #000000 5%);
+    }
+
+    .application:active {
+        background: color-mix(in srgb, #F6D200 90%, #000000 10%);
+    }
 
 .application-info-count {
     width: 50%;

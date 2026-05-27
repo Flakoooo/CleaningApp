@@ -14,42 +14,44 @@
         @foreach (var application in _applications)
         {
             <ApplicationCard CleaningApplication="application"
-                                OnCardClick="() => SelectApplication(application.Id)" />
+                             OnCardClick="() => SelectApplication(application.Id)" />
         }
     </div>
-    <div class="active-applications-filter">
-        <CheckboxFilter T="ValueSelectableItem<CleaningApplicationStatus>" 
-                        Label="Статус заявки"
-                        AllValues="_filterStatuses"
-                        FilterChanged="() => LoadApplicationsAsync()"
-                        @bind-SelectedValues="_selectedStatuses"
-                        DebounceDelay="500" />
-        <CheckboxFilter T="ServiceDTO"
-                        AllValues="_filterServices"
-                        Label="Тип услуги"
-                        FilterChanged="() => LoadApplicationsAsync()"
-                        @bind-SelectedValues="_selectedServices"
-                        DebounceDelay="500" />
-        <Number T="int" 
-                Label="Количество кабинетов" 
-                MinValue="0"
-                Value="_roomsCount"
-                ValueChanged="async (value) => await SetRoomsCount(value)"  
-                DebounceDelay="500"
-                Placeholder="Введите количество кабинетов" />
-        <CheckboxFilter T="OfficeDTO"
-                        DataLoaderMethod="async (page) => await OfficesService.GetOfficesAsync(page)"
-                        @bind-SelectedValues="_selectedOffices"
-                        FilterChanged="() => LoadApplicationsAsync()"
-                        Label="Адрес"
-                        DebounceDelay="500" />
-        <CheckboxFilter T="ValueSelectableItem<TimeOnly>" 
-                        AllValues="_filterTime" 
-                        Label="Время"
-                        FilterChanged="() => LoadApplicationsAsync()"
-                        @bind-SelectedValues="_selectedTimes"
-                        DebounceDelay="500" />
-        <Button Width="width: 100%;" 
+    <div class="d-flex flex-column align-items-center" style="width: 30%;">
+        <div class="active-applications-filter">
+            <CheckboxFilter T="ValueSelectableItem<CleaningApplicationStatus>"
+                            Label="Статус заявки"
+                            AllValues="_filterStatuses"
+                            FilterChanged="() => FilterHasChanged()"
+                            @bind-SelectedValues="_selectedStatuses"
+                            DebounceDelay="500" />
+            <CheckboxFilter T="ServiceDTO"
+                            AllValues="_filterServices"
+                            Label="Тип услуги"
+                            FilterChanged="() => FilterHasChanged()"
+                            @bind-SelectedValues="_selectedServices"
+                            DebounceDelay="500" />
+            <Number T="int"
+                    Label="Количество кабинетов"
+                    MinValue="0"
+                    Value="_roomsCount"
+                    ValueChanged="async (value) => await SetRoomsCount(value)"
+                    DebounceDelay="500"
+                    Placeholder="Введите количество кабинетов" />
+            <CheckboxFilter T="OfficeDTO"
+                            DataLoaderMethod="async (page) => await OfficesService.GetOfficesAsync(page)"
+                            @bind-SelectedValues="_selectedOffices"
+                            FilterChanged="() => FilterHasChanged()"
+                            Label="Адрес"
+                            DebounceDelay="500" />
+            <CheckboxFilter T="ValueSelectableItem<TimeOnly>"
+                            AllValues="_filterTime"
+                            Label="Время"
+                            FilterChanged="() => FilterHasChanged()"
+                            @bind-SelectedValues="_selectedTimes"
+                            DebounceDelay="500" />
+        </div>
+        <Button Width="width: 100%;"
                 Text="Сбросить фильтры"
                 OnButtonClick="ResetFilters" />
     </div>
