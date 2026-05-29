@@ -5,7 +5,7 @@
 @using CleaningAppWeb.Components.Shared.OfficerApplicationsCard
 @using CleaningAppWeb.Domain.Enums
 @using Microsoft.AspNetCore.Authorization
-@rendermode InteractiveServer
+@rendermode @(new InteractiveServerRenderMode(prerender: false))
 
 <PageTitle>Созданные заявки</PageTitle>
 
@@ -16,6 +16,6 @@
     </div>
     <div class="application-side">
         <OfficerApplicationsCard Label="История заявок"
-                                 Statuses="[CleaningApplicationStatus.Done, CleaningApplicationStatus.Rated]" />
+                                 Statuses="[CleaningApplicationStatus.Done, CleaningApplicationStatus.Rated, CleaningApplicationStatus.Expired]" />
     </div>
 </div>

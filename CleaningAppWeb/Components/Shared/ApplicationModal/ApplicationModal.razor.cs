@@ -30,6 +30,9 @@ namespace CleaningAppWeb.Components.Shared.ApplicationModal
 
         private CleaningApplicationDTO? _application;
 
+        private CancellationTokenSource? _resultTextCts;
+        private string? _updateStatusTextResult;
+
         protected override async Task OnInitializedAsync()
         {
             var user = (await AuthProvider.GetAuthenticationStateAsync()).User;
@@ -60,10 +63,41 @@ namespace CleaningAppWeb.Components.Shared.ApplicationModal
             _ => _application?.Status.ToString() ?? "Статус"
         };
 
+        private async Task ClearTextAfterDelay(CancellationToken ct)
+        {
+            try
+            {
+                await Task.Delay(5000, ct);
+                _updateStatusTextResult = null;
+                StateHasChanged();
+            }
+            catch (OperationCanceledException)
+            {
+                
+            }
+        }
+
         private async Task UpdateApplicationStatus(CleaningApplicationStatus newStatus)
         {
             if (_application is not null)
             {
+                if (newStatus is CleaningApplicationStatus.Done)
+                {
+                    var ad = _application.CleaningDate;
+                    var at = _application.CleaningTime;
+                    var applicationDateTime = new DateTime(ad.Year, ad.Month, ad.Day, at.Hour, at.Minute, at.Second);
+                    if (DateTime.Now < applicationDateTime)
+                    {
+                        _updateStatusTextResult = "Завершить заявку можно после начала работы!";
+
+                        _resultTextCts?.Cancel();
+                        _resultTextCts = new CancellationTokenSource();
+
+                        _ = ClearTextAfterDelay(_resultTextCts.Token);
+                        return;
+                    }
+                }
+
                 var result = await ApplicationsService.UpdateApplicationStatusAsync(_application.Id, newStatus);
                 if (!result) return;
 

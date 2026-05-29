@@ -53,6 +53,7 @@ namespace CleaningAppWeb.Components.Pages.NewApplication
         private List<ServiceDTO> _availableServices = [];
         private readonly HashSet<Guid> _selectedServices = [];
 
+        private CancellationTokenSource? _resultTextCts;
         private string? _createTextResult;
 
         protected override async Task OnInitializedAsync()
@@ -203,6 +204,20 @@ namespace CleaningAppWeb.Components.Pages.NewApplication
                 _errors.Remove(errorTimeKey);
         }
 
+        private async Task ClearTextAfterDelay(CancellationToken ct)
+        {
+            try
+            {
+                await Task.Delay(5000, ct);
+                _createTextResult = null;
+                StateHasChanged();
+            }
+            catch (OperationCanceledException)
+            {
+
+            }
+        }
+
         private async Task CreateApplication()
         {
             _errors.Clear();
@@ -286,7 +301,18 @@ namespace CleaningAppWeb.Components.Pages.NewApplication
 
             var result = await CleaningApplicationsService.CreateNewApplicationAsync(CreateRequest);
 
-            _createTextResult = !string.IsNullOrWhiteSpace(result) ? result : "Заявка успешно создана!";
+            if (!string.IsNullOrWhiteSpace(result))
+            {
+                _createTextResult = result;
+
+                _resultTextCts?.Cancel();
+                _resultTextCts = new CancellationTokenSource();
+
+                _ = ClearTextAfterDelay(_resultTextCts.Token);
+                return;
+            }
+
+            _createTextResult = "Заявка успешно создана!";
         }
     }
 }

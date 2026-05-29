@@ -11,7 +11,7 @@
 @using CleaningAppWeb.Domain.DTOs
 @using CleaningAppWeb.Domain.Enums
 @using Microsoft.AspNetCore.Authorization
-@rendermode InteractiveServer
+@rendermode @(new InteractiveServerRenderMode(prerender: false))
 
 <PageTitle>История заявок</PageTitle>
 

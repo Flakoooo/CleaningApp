@@ -118,6 +118,10 @@
             </div>
         </div>
         <div class="application-modal-buttons">
+            @if (!string.IsNullOrWhiteSpace(_updateStatusTextResult))
+            {
+                <div style="color: #312B2B;">@_updateStatusTextResult</div>
+            }
             @if (_currentRole is RoleType.Cleaner)
             {
                 @if (_application?.Status == CleaningApplicationStatus.Waiting)

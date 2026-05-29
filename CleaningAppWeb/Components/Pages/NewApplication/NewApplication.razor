@@ -12,7 +12,7 @@
 @using CleaningAppWeb.Domain.DTOs
 @using System.Globalization
 @using Microsoft.AspNetCore.Authorization
-@rendermode InteractiveServer
+@rendermode @(new InteractiveServerRenderMode(prerender: false))
 
 <PageTitle>Создание заявки</PageTitle>
 

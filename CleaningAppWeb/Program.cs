@@ -90,6 +90,8 @@ namespace CleaningAppWeb
             builder.Services.AddScoped<CleaningServicesService>();
             builder.Services.AddScoped<CleaningApplicationsService>();
 
+            builder.Services.AddHostedService<ExpiredApplicationsService>();
+
             var app = builder.Build();
 
             if (!app.Environment.IsDevelopment())
