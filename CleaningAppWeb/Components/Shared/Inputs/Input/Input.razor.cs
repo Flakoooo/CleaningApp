@@ -17,7 +17,7 @@ namespace CleaningAppWeb.Components.Shared.Inputs.Input
         public string Placeholder { get; set; } = string.Empty;
 
         [Parameter]
-        public bool? IsDisabled { get; set; }
+        public bool IsDisabled { get; set; } = false;
 
         [Parameter]
         public string Value { get; set; } = string.Empty;
@@ -32,21 +32,9 @@ namespace CleaningAppWeb.Components.Shared.Inputs.Input
 
         protected override void OnParametersSet()
         {
-            _showError = !string.IsNullOrWhiteSpace(ErrorMessage);
+            _showError = string.IsNullOrWhiteSpace(Value) && !string.IsNullOrWhiteSpace(ErrorMessage);
 
             StateHasChanged();
-        }
-
-        private Dictionary<string, object> GetInputAttributes()
-        {
-            var attributes = new Dictionary<string, object>();
-
-            if (IsDisabled.HasValue && IsDisabled.Value)
-            {
-                attributes["disabled"] = "disabled";
-            }
-
-            return attributes;
         }
 
         private async Task OnInputChanged(ChangeEventArgs e)

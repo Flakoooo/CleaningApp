@@ -1,10 +1,13 @@
 ﻿using CleaningAppWeb.Components.Models;
+using CleaningAppWeb.Components.Services;
+using CleaningAppWeb.Components.Shared.TelephoneNumberInput;
 using CleaningAppWeb.Data.Services;
 using CleaningAppWeb.Domain.DTOs;
 using CleaningAppWeb.Domain.Requests;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using System.Globalization;
+using System.Text.RegularExpressions;
 
 namespace CleaningAppWeb.Components.Pages.NewApplication
 {
@@ -35,6 +38,9 @@ namespace CleaningAppWeb.Components.Pages.NewApplication
         private string _userPatronymicName = string.Empty;
         private string _userTelephoneNumber = string.Empty;
 
+        private string _userRawPhone = string.Empty;
+        private string _manualRawPhone = string.Empty;
+
         private OfficeDTO? _selectedOffice;
 
         private HashSet<RoomDTO> _selectedRooms = [];
@@ -60,6 +66,8 @@ namespace CleaningAppWeb.Components.Pages.NewApplication
             _userLastName = user.FindFirst("LastName")?.Value ?? string.Empty;
             _userPatronymicName = user.FindFirst("Patronymic")?.Value ?? string.Empty;
             _userTelephoneNumber = user.FindFirst("TelephoneNumber")?.Value ?? string.Empty;
+
+            _userRawPhone = PhoneHelper.NormalizeRawDigits(_userTelephoneNumber);
         }
 
         private void SetError(string key, string value)
@@ -86,6 +94,13 @@ namespace CleaningAppWeb.Components.Pages.NewApplication
                 _errors.Remove("patronymic");
                 _errors.Remove("telephoneNumber");
             }
+        }
+
+        private void SetPhoneInput(string value)
+        {
+            if (_setUserData) return;
+
+            _manualRawPhone = value;
         }
 
         private void SelectOffice(OfficeDTO officeDTO)
@@ -192,6 +207,7 @@ namespace CleaningAppWeb.Components.Pages.NewApplication
         {
             _errors.Clear();
 
+            string telephoneErrorKey = "telephoneNumber";
             string errorUserData;
             if (_setUserData)
             {
@@ -205,8 +221,11 @@ namespace CleaningAppWeb.Components.Pages.NewApplication
                 if (string.IsNullOrWhiteSpace(_userPatronymicName))
                     SetError("patronymic", errorUserData);
 
-                if (string.IsNullOrWhiteSpace(_userTelephoneNumber))
-                    SetError("telephoneNumber", errorUserData);
+                CreateRequest.ClientTelephoneNumber = PhoneHelper.FormatPhoneFromRaw(_userRawPhone);
+                if (string.IsNullOrWhiteSpace(CreateRequest.ClientTelephoneNumber))
+                    SetError(telephoneErrorKey, errorUserData);
+                else if (!PhoneHelper.MatchPhone(CreateRequest.ClientTelephoneNumber))
+                    SetError(telephoneErrorKey, "Неверный формат номера, заполните поля самостоятельно");
             }
             else
             {
@@ -220,8 +239,11 @@ namespace CleaningAppWeb.Components.Pages.NewApplication
                 if (string.IsNullOrWhiteSpace(CreateRequest.ClientPatronymic))
                     SetError("patronymic", errorUserData);
 
+                CreateRequest.ClientTelephoneNumber = PhoneHelper.FormatPhoneFromRaw(_manualRawPhone);
                 if (string.IsNullOrWhiteSpace(CreateRequest.ClientTelephoneNumber))
-                    SetError("telephoneNumber", errorUserData);
+                    SetError(telephoneErrorKey, errorUserData);
+                else if (!PhoneHelper.MatchPhone(CreateRequest.ClientTelephoneNumber))
+                    SetError(telephoneErrorKey, "Неверный формат номера");
             }
 
             if (_selectedOffice is null)
@@ -256,7 +278,6 @@ namespace CleaningAppWeb.Components.Pages.NewApplication
                 CreateRequest.ClientFirstName = _userFirstName;
                 CreateRequest.ClientLastName = _userLastName;
                 CreateRequest.ClientPatronymic = _userPatronymicName;
-                CreateRequest.ClientTelephoneNumber = _userTelephoneNumber;
             }
             CreateRequest.OfficeId = _selectedOffice!.Id;
             CreateRequest.Rooms = _selectedRooms.Select(r => r.Id).ToHashSet();

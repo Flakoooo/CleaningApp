@@ -8,6 +8,7 @@
 @using CleaningAppWeb.Components.Shared.Inputs.Input
 @using CleaningAppWeb.Components.Shared.Inputs.TextArea
 @using CleaningAppWeb.Components.Shared.RadioDropdown
+@using CleaningAppWeb.Components.Shared.TelephoneNumberInput
 @using CleaningAppWeb.Domain.DTOs
 @using System.Globalization
 @using Microsoft.AspNetCore.Authorization
@@ -42,12 +43,10 @@
                        ErrorMessage="@_errors.GetValueOrDefault("patronymic")" />
             </div>
             <div class="d-flex flex-row gap-4">
-                <Input Label="Контактный номер" 
-                       Placeholder="Введите номер телефона" 
-                       IsDisabled="_setUserData" 
-                       Value="@(_setUserData ? _userTelephoneNumber : CreateRequest.ClientTelephoneNumber)"
-                       ValueChanged="(value) => CreateRequest.ClientTelephoneNumber = value"
-                       ErrorMessage="@_errors.GetValueOrDefault("telephoneNumber")" />
+                <TelephoneNumberInput IsDisabled="@_setUserData"
+                                      ErrorMessage="@_errors.GetValueOrDefault("telephoneNumber")"
+                                      Value="@(_setUserData ? _userRawPhone : _manualRawPhone)"
+                                      ValueChanged="SetPhoneInput" />
                 <RadioDropdown T="OfficeDTO" 
                                Label="Адрес офиса" 
                                Placeholder="Выберите адрес офиса" 

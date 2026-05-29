@@ -19,10 +19,13 @@
                 }
             </span>
         }
-        <input type="@InputType.ToString().ToLower()"
-               value="@Value"
+        <input type="tel"
+               @ref="_phoneInputElement"
+               value="@_phoneInput"
                placeholder="@Placeholder"
-               @oninput="@OnInputChanged"
+               @oninput="@HandleInput"
+               inputmode="numeric"
+               maxlength="18"
                class="form-control rounded-end @(_showError ? "is-invalid" : string.Empty)"
                disabled="@IsDisabled" />
         @if (_showError)
