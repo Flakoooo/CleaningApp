@@ -100,12 +100,13 @@ namespace CleaningAppWeb
 
             app.UseHttpsRedirection();
             app.UseAuthentication();
+            app.UseStatusCodePagesWithReExecute("/notfound");
             app.UseAuthorization();
             app.UseAntiforgery();
 
             app.MapRazorPages();
-
             app.MapStaticAssets();
+
             app.MapRazorComponents<App>()
                 .AddInteractiveServerRenderMode();
 
