@@ -45,10 +45,11 @@
              @onclick:stopPropagation="true">
             @foreach (var value in _values)
             {
-                <div class="input-dropdown-list-element list-group-item list-group-item-action"
-                     tabindex="-1"
-                     @onclick="() => OnItemClick(value)">
+                <div class="input-dropdown-list-element list-group-item list-group-item-action w-100"
+                     tabindex="-1">
                     <Checkbox Checked="SelectedValues.Contains(value)"
+                              Width="w-100"
+                              OnClick="() => OnItemClick(value)"
                               DisplayText="@value.GetDisplayInfo()" />
                 </div>
             }

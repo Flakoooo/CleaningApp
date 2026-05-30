@@ -14,9 +14,7 @@
             Статус: @GetStatusTranslation()
         </div>
     </div>
-    @if (_currentRole is not RoleType.Officer || 
-         CleaningApplication.Status is not CleaningApplicationStatus.Waiting and not CleaningApplicationStatus.Expired
-    )
+    @if (_currentRole is not RoleType.Officer || CleaningApplication.Status is > CleaningApplicationStatus.Waiting)
     {
         <div class="w-100 d-flex flex-row py-1 gap-2 px-3 block-info-border-middle">
             @{

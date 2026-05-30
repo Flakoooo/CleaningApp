@@ -2,10 +2,10 @@
 {
     public enum CleaningApplicationStatus
     {
-        Waiting = 0,
-        InWork = 1,
-        Done = 2,
-        Rated = 3,
-        Expired = 4
+        Expired = 0,
+        Waiting = 1,
+        InWork = 2,
+        Done = 3,
+        Rated = 4
     }
 }

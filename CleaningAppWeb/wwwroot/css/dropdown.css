@@ -4,7 +4,7 @@
     left: auto;
     top: 11px;
     right: 12px;
-    z-index: 100;
+    z-index: 5;
     cursor: pointer;
     color: #312B2B;
 }
