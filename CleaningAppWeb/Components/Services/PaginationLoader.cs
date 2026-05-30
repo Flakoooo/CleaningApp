@@ -145,6 +145,7 @@ namespace CleaningAppWeb.Components.Services
         {
             if (firstRender)
             {
+                await Task.Delay(100);
                 await InitializeInfiniteScrollAsync();
             }
         }
