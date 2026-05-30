@@ -9,7 +9,8 @@
 .new-application-card {
     width: 65%;
     min-height: 75%;
-    background: #F6D200;
+    background: #FFFFFF;
+    border: 4px solid #6B6B6B;
     border-radius: 16px;
     padding: 16px;
     display: flex;

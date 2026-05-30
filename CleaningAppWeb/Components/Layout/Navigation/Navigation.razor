@@ -2,7 +2,7 @@
 @using CleaningAppWeb.Domain.Enums
 @using Microsoft.AspNetCore.Components.Authorization
 @using System.Security.Claims
-@rendermode InteractiveServer
+@rendermode @(new InteractiveServerRenderMode(prerender: false))
 @implements IDisposable
 
 <div class="navigation">
@@ -12,13 +12,21 @@
     <div class="navigation-nav-buttons">
         @if (_currentRole is RoleType.Officer)
         {
-            <Button Text="Созданные заявки" OnButtonClick="@(() => NavigateTo("/created-applications"))" />
-            <Button Text="Создание заявки" OnButtonClick="@(() => NavigateTo("/new-application"))" />
+            <Button Text="Созданные заявки" 
+                    IsMainButton="@(NavigationManager.ToBaseRelativePath(NavigationManager.Uri) == "created-applications")"
+                    OnButtonClick="@(() => NavigateTo("/created-applications"))" />
+            <Button Text="Создание заявки" 
+                    IsMainButton="@(NavigationManager.ToBaseRelativePath(NavigationManager.Uri) == "new-application")"
+                    OnButtonClick="@(() => NavigateTo("/new-application"))" />
         }
         else if (_currentRole is RoleType.Cleaner)
         {
-            <Button Text="Активные заявки" OnButtonClick="@(() => NavigateTo("/active-applications"))" />
-            <Button Text="История заявок" OnButtonClick="@(() => NavigateTo("/applications-history"))" />
+            <Button Text="Активные заявки" 
+                    IsMainButton="@(NavigationManager.ToBaseRelativePath(NavigationManager.Uri) == "active-applications")"
+                    OnButtonClick="@(() => NavigateTo("/active-applications"))" />
+            <Button Text="История заявок"
+                    IsMainButton="@(NavigationManager.ToBaseRelativePath(NavigationManager.Uri) == "applications-history")"
+                    OnButtonClick="@(() => NavigateTo("/applications-history"))" />
         }
     </div>
     <div class="navigation-user-fullname">
@@ -65,18 +73,20 @@
         StateHasChanged();
     }
 
+    private string GetPageName(string path) => path switch
+    {
+        "created-applications" => "Созданные заявки",
+        "new-application" => "Создание заявки",
+        "active-applications" => "Активные заявки",
+        "applications-history" => "История заявок",
+        _ => "Неизвестная страница"
+    };
+
     private void UpdatePageTitle()
     {
         var path = NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
-        
-        _pageTitle = path switch
-        {
-            "created-applications" => "Созданные заявки",
-            "new-application" => "Создание заявки",
-            "active-applications" => "Активные заявки",
-            "applications-history" => "История заявок",
-            _ => "Неизвестная страница"
-        };
+
+        _pageTitle = GetPageName(path);
     }
 
     private void NavigateTo(string path) => NavigationManager.NavigateTo(path);

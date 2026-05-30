@@ -46,7 +46,7 @@
         <div style="color: #6B6B6B;">
             Страница, которую вы ищете, могла быть удалена, перемещена или временно недоступна
         </div>
-        <Button Text="Вернуться на главную" Width="width: 35%;" ButtonClass="btn-not-found" OnButtonClick="GoHome" />
+        <Button IsMainButton="true" Text="Вернуться на главную" Width="width: 35%;" OnButtonClick="GoHome" />
     </div>
 </div>
 
@@ -68,6 +68,6 @@
 
     private void GoHome()
     {
-        Navigation.NavigateTo("/");
+        Navigation.NavigateTo("/", true);
     }
 }

@@ -1,4 +1,5 @@
 ﻿@using CleaningAppWeb.Components.Shared.Button
+@using CleaningAppWeb.Components.Shared.IconText
 @using CleaningAppWeb.Components.Shared.Inputs.TextArea
 @using CleaningAppWeb.Components.Shared.RatingApplicationModal
 @using CleaningAppWeb.Data.Services
@@ -62,38 +63,28 @@
                     @GetStatusTranslation()
                 </div>
                 <div class="block-info-border-top d-flex flex-column">
-                    <div class="d-flex flex-row" style="color: #312B2B;">
-                        <i class="bi bi-person-fill" style="font-size: 24px;"></i>
-                        Заказчик:
-                    </div>
+                    <IconText Icon="bi-person-fill" IconColor="#F6D200" IconSize="24"
+                              Text="Заказчик:" />
                     <div style="color: #6B6B6B;">@_application?.ShortClientFullName</div>
                 </div>
                 <div class="block-info-border-middle d-flex flex-column">
-                    <div class="d-flex flex-row" style="color: #312B2B;">
-                        <i class="bi bi-person-fill" style="font-size: 24px;"></i>
-                        Исполнитель:
-                    </div>
+                    <IconText Icon="bi-person-fill" IconColor="#F6D200" IconSize="24"
+                              Text="Исполнитель:" />
                     <div style="color: #6B6B6B;">@(_application?.Executor is not null ? _application.Executor.ShortFullName : "В поиске")</div>
                 </div>
                 <div class="block-info-border-middle d-flex flex-column">
-                    <div class="d-flex flex-row gap-1" style="color: #312B2B;">
-                        <i class="bi bi-telephone-fill"></i>
-                        Телефон:
-                    </div>
+                    <IconText Icon="bi-telephone-fill" IconColor="#F6D200" Gap="4"
+                              Text="Телефон:" />
                     <div style="color: #6B6B6B;">@_application?.ClientTelephoneNumber</div>
                 </div>
                 <div class="block-info-border-middle d-flex flex-column">
-                    <div class="d-flex flex-row gap-1" style="color: #312B2B;">
-                        <i class="bi bi-building-fill"></i>
-                        Адрес:
-                    </div>
+                    <IconText Icon="bi-building-fill" IconColor="#F6D200" Gap="4"
+                              Text="Адрес:" />
                     <div style="color: #6B6B6B;">@_application?.Office.Address</div>
                 </div>
                 <div class="block-info-border-@(_application?.Status > CleaningApplicationStatus.InWork ? "middle" : "bottom") d-flex flex-column">
-                    <div class="d-flex flex-row gap-1" style="color: #312B2B;">
-                        <i class="bi bi-clock-fill"></i>
-                        Дата и время:
-                    </div>
+                    <IconText Icon="bi-clock-fill" IconColor="#F6D200" Gap="4"
+                              Text="Дата и время:" />
                     <div style="color: #6B6B6B;">@_application?.CleaningDate @_application?.CleaningTime</div>
                 </div>
                 @if (_application?.Status > CleaningApplicationStatus.InWork)
@@ -109,7 +100,9 @@
                             <div class="d-flex flex-row" style="color: #312B2B; font-size: 24px;">
                                 @for (byte i = 0; i < 5; ++i)
                                 {
-                                    <i class="bi bi-star@(i < _application?.Rating ? "-fill" : string.Empty)"></i>
+                                    <i class="bi bi-star@(i < _application.Rating ? "-fill" : string.Empty)"
+                                           style="color: @(i < _application.Rating ? "#F6D200" : "#6B6B6B");">
+                                    </i>
                                 }
                             </div>
                         }
@@ -127,6 +120,7 @@
                 @if (_application?.Status == CleaningApplicationStatus.Waiting)
                 {
                     <Button Text="Начать"
+                            IsMainButton="true"
                             Width="width: 10vw;"
                             Style="padding: 2px 4px 2px 4px;"
                             FontSize="20"
@@ -135,6 +129,7 @@
                 @if (_application?.Status == CleaningApplicationStatus.InWork)
                 {
                     <Button Text="Закончить"
+                            IsMainButton="true"
                             Width="width: 10vw;"
                             Style="padding: 2px 4px 2px 4px;"
                             FontSize="20"
@@ -146,6 +141,7 @@
                 @if (_application?.Status == CleaningApplicationStatus.Done)
                 {
                     <Button Text="Оценить"
+                            IsMainButton="true"
                             Width="width: 10vw;"
                             Style="padding: 2px 4px 2px 4px;"
                             FontSize="20"

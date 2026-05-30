@@ -1,16 +1,22 @@
 ﻿.application {
-    background: #F6D200;
-    border-radius: 8px;
+    background: #FFFFFF;
     transition: background-color 0.3s ease;
     cursor: pointer;
+    color: #312B2B;
+    font-size: 24px;
+    border-bottom: 1px solid #6B6B6B4D;
 }
 
     .application:hover {
-        background: color-mix(in srgb, #F6D200 95%, #000000 5%);
+        background: color-mix(in srgb, #FFFFFF 90%, #000000 10%);
     }
 
     .application:active {
-        background: color-mix(in srgb, #F6D200 90%, #000000 10%);
+        background: color-mix(in srgb, #FFFFFF 80%, #000000 20%);
+    }
+
+    .application:last-child {
+        border-bottom: none;
     }
 
 .application-info-count {
@@ -19,16 +25,6 @@
     justify-content: center;
     align-items: center;
     gap: 8px;
-}
-
-.application-main-text {
-    color: #312B2B;
-    font-size: 24px;
-}
-
-.application-sub-text {
-    color: #6B6B6B;
-    font-size: 24px;
 }
 
 .block-info-border-top {

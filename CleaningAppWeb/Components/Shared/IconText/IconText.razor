@@ -1,0 +1,56 @@
+﻿<div class="d-flex flex-row" style="@GetStyle()">
+    @if (!string.IsNullOrWhiteSpace(Icon))
+    {
+        <i class="bi @Icon" style="@GetIconStyle()"></i>
+    }
+    <div style="@GetTextStyle()">@Text</div>
+</div>
+
+@code {
+    [Parameter]
+    public string? Icon { get; set; } 
+
+    [Parameter]
+    public int? IconSize { get; set; }
+
+    [Parameter]
+    public string? IconColor { get; set; }
+
+    [Parameter]
+    public required string Text { get; set; }
+
+    [Parameter]
+    public string? TextColor { get; set; }
+
+    [Parameter]
+    public int? Gap { get; set; }
+
+    private string GetStyle()
+    {
+        if (Gap.HasValue)
+            return $"gap: {Gap.Value}px;";
+
+        return string.Empty;
+    }
+
+    private string GetIconStyle()
+    {
+        var styles = new List<string>();
+
+        if (IconSize.HasValue)
+            styles.Add($"font-size: {IconSize.Value}px;");
+
+        if (!string.IsNullOrWhiteSpace(IconColor))
+            styles.Add($"color: {IconColor};");
+
+        return string.Join(' ', styles);
+    }
+
+    private string GetTextStyle()
+    {
+        if (!string.IsNullOrWhiteSpace(TextColor))
+            return $"color: {IconColor};";
+
+        return string.Empty;
+    }
+}

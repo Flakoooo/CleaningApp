@@ -1,63 +1,60 @@
-﻿@using CleaningAppWeb.Domain.DTOs
+﻿@using CleaningAppWeb.Components.Shared.IconText
+@using CleaningAppWeb.Domain.DTOs
 @using CleaningAppWeb.Domain.Enums
 @using Microsoft.AspNetCore.Components.Authorization
 @using System.Security.Claims
+
 <div class="application" @onclick="CardClick">
     <div class="d-flex flex-column p-3 pb-2 block-info-border-top">
-        <div class="application-main-text d-flex flex-row gap-1">
-            <i class="bi bi-building-fill"></i>
-            Уборка в @CleaningApplication.Office?.Address
-        </div>
-        <div class="application-sub-text d-flex flex-row gap-1">
-            <i class="bi bi-clock-fill"></i>
-            <div class="gap-2 d-flex flex-row">
-                <div>@CleaningApplication.CleaningDate.ToString("dd.MM.yyyy")</div>
-                <div>@CleaningApplication.CleaningTime.ToString("HH:mm")</div>
-            </div>
-        </div>
+        <IconText Gap="4" Icon="bi-building-fill" IconColor="#F6D200" IconSize="20" 
+                  Text="@($"Уборка в {CleaningApplication.Office?.Address}")" />
+        <IconText Gap="4" Icon="bi-clock-fill" IconColor="#F6D200" IconSize="20" 
+                  Text="@($"{CleaningApplication.CleaningDate.ToString("dd.MM.yyyy")} {CleaningApplication.CleaningTime.ToString("HH:mm")}")" />
         <div class="application-main-text">
             Статус: @GetStatusTranslation()
         </div>
     </div>
-    @if (_currentRole is not RoleType.Officer || CleaningApplication.Status > CleaningApplicationStatus.Waiting)
+    @if (_currentRole is not RoleType.Officer || 
+         CleaningApplication.Status is not CleaningApplicationStatus.Waiting and not CleaningApplicationStatus.Expired
+    )
     {
         <div class="w-100 d-flex flex-row py-1 gap-2 px-3 block-info-border-middle">
-            <div class="application-main-text d-flex flex-row gap-1">
-                <i class="bi bi-person-fill"></i>
-                @(_currentRole is RoleType.Officer ? "Исполнитель:" : "Заказчик:")
-            </div>
-            <div class="application-sub-text">
-                @(_currentRole is RoleType.Officer ? CleaningApplication.Executor?.ShortFullName : CleaningApplication.ShortClientFullName)
-            </div>
+            @{
+                var isOfficer = _currentRole is RoleType.Officer;
+                <IconText Gap="4" Icon="bi-person-fill" IconColor="#F6D200"
+                          Text="@(isOfficer ? "Исполнитель:" : "Заказчик:")" />
+                @(isOfficer ? CleaningApplication.Executor?.ShortFullName : CleaningApplication.ShortClientFullName)
+            }
         </div>
     }
-    <div class="w-100 d-flex flex-row py-1 @(CleaningApplication.Status > CleaningApplicationStatus.InWork ? "block-info-border-middle" : "block-info-border-bottom")">
+    <div class="w-100 d-flex flex-row py-1 @(CleaningApplication.Status > CleaningApplicationStatus.InWork ? "block-info-border-middle" : "block-info-border-bottom")"
+         style="background-color: #6B6B6B;">
         <div class="application-info-count">
-            <span class="application-main-text">Кабинетов:</span>
-            <span class="application-sub-text">@CleaningApplication.RoomsCount</span>
+            <span style="color: #FFFFFF;">Кабинетов:</span>
+            <span style="color: #F6D200;">@CleaningApplication.RoomsCount</span>
         </div>
         <div class="application-info-count">
-            <span class="application-main-text">Услуг:</span>
-            <span class="application-sub-text">@CleaningApplication.ServicesCount</span>
+            <span style="color: #FFFFFF;">Услуг:</span>
+            <span style="color: #F6D200;">@CleaningApplication.ServicesCount</span>
         </div>
     </div>
     @if (CleaningApplication.Status is CleaningApplicationStatus.Done)
     {
         <div class="w-100 d-flex flex-row justify-content-center py-1 block-info-border-bottom">
-            <div class="application-main-text d-flex flex-row gap-1">
-                <i class="bi bi-star-half"></i>
-                @(_currentRole is RoleType.Officer ? "Можно оценить работу!" : "Ожидает оценки")
-            </div>
+            <IconText Gap="4" Icon="bi-star-half" IconColor="#6B6B6B"
+                      Text="@(_currentRole is RoleType.Officer ? "Можно оценить работу!" : "Ожидает оценки")" />
         </div>
     }
     @if (CleaningApplication.Status is CleaningApplicationStatus.Rated)
     {
         <div class="w-100 d-flex flex-row justify-content-center py-1 block-info-border-bottom">
-            <div class="application-main-text d-flex flex-row gap-1">
+            <div class="d-flex flex-row gap-1">
                 Оценка:
                 @for (byte i = 0; i < 5; ++i)
                 {
-                    <i class="bi bi-star@(i < CleaningApplication.Rating ? "-fill" : string.Empty)"></i>
+                    <i class="bi bi-star@(i < CleaningApplication.Rating ? "-fill" : string.Empty)" 
+                       style="color: @(i < CleaningApplication.Rating ? "#F6D200" : "#6B6B6B");">
+                    </i>
                 }
             </div>
         </div>
@@ -90,6 +87,7 @@
         CleaningApplicationStatus.InWork => "В работе",
         CleaningApplicationStatus.Done => "Выполнена",
         CleaningApplicationStatus.Rated => "Оценена",
+        CleaningApplicationStatus.Expired => "Просрочена",
         _ => CleaningApplication.Status.ToString()
     };
 

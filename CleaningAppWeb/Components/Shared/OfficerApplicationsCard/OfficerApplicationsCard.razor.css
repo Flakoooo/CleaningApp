@@ -1,18 +1,27 @@
 ﻿.applications-card {
     height: 80%;
     width: 75%;
-    background: #F6D200;
+    background: #FFFFFF;
+    border: 4px solid #6B6B6B;
     border-radius: 16px;
-    padding: 8px 12px 12px 12px;
+    overflow: hidden;
+}
+
+.applications-card-header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 10%;
+    font-size: 32px;
+    background: #F6D200;
 }
 
 .applications-card-list {
     background: #FFFFFF;
     height: 90%;
-    padding: 8px;
     border-radius: 8px;
     overflow-y: auto;
     display: flex;
+    padding: 8px;
     flex-direction: column;
-    gap: 10px;
 }

@@ -4,7 +4,7 @@
 @inherits PaginationLoader
 
 <div class="applications-card">
-    <div class="fs-2 d-flex justify-content-center align-items-center" style="height: 10%;">@Label</div>
+    <div class="applications-card-header">@Label</div>
     <div class="applications-card-list" @ref="_tableContainer">
         @foreach (var application in _applications)
         {

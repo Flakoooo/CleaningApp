@@ -1,26 +1,53 @@
 ﻿.btn {
-    background-color: #6B6B6B;
-    border-color: #6B6B6B;
-    color: #FFFFFF;
     border-radius: 8px;
     justify-content: center;
     padding: 0;
 }
 
-    .btn:hover {
+.btn-second {
+    background-color: #6B6B6B;
+    border-color: #6B6B6B;
+    color: #FFFFFF;
+}
+
+    .btn-second:hover {
         background-color: color-mix(in srgb, #6B6B6B 70%, #000000 30%);
-        border-color: #6B6B6B;
+        border-color: color-mix(in srgb, #6B6B6B 70%, #000000 30%);
         color: #FFFFFF;
     }
 
-    .btn:active {
+    .btn-second:active {
         background-color: #312B2B;
         border-color: #312B2B;
         color: #FFFFFF;
     }
 
-    .btn:disabled {
+    .btn-second:disabled {
         background-color: #312B2B;
         border-color: #312B2B;
         color: #6B6B6B;
+    }
+
+.btn-main {
+    background-color: #F6D200;
+    border-color: #F6D200;
+    color: #312B2B;
+}
+
+    .btn-main:hover {
+        background-color: color-mix(in srgb, #F6D200 95%, #000000 5%);
+        border-color: color-mix(in srgb, #F6D200 95%, #000000 5%);
+        color: #312B2B;
+    }
+
+    .btn-main:active {
+        background-color: color-mix(in srgb, #F6D200 90%, #000000 10%);
+        border-color: color-mix(in srgb, #F6D200 90%, #000000 10%);
+        color: #312B2B;
+    }
+
+    .btn-main:disabled {
+        background-color: #F6D200;
+        border-color: #F6D200;
+        color: #312B2B;
     }
