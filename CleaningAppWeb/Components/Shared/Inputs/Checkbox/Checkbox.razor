@@ -1,4 +1,4 @@
-﻿<div class="d-flex" style="cursor: pointer;" @onclick="() => SelectCheckbox()">
+﻿<div class="d-flex @Width" style="cursor: pointer;" @onclick="() => SelectCheckbox()">
     <input type="@InputType.Checkbox.ToString().ToLower()"
            checked="@Checked"
            class="form-check-input"
@@ -19,6 +19,9 @@
 
     [Parameter]
     public EventCallback OnClick { get; set; }
+
+    [Parameter]
+    public string? Width { get; set; }
 
     [Parameter]
     public string DisplayText { get; set; } = string.Empty;

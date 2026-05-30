@@ -143,7 +143,7 @@ namespace CleaningAppWeb.Components.Services
         /// </summary>
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
-            if (firstRender && _isInitialized)
+            if (firstRender)
             {
                 await InitializeInfiniteScrollAsync();
             }
@@ -158,11 +158,11 @@ namespace CleaningAppWeb.Components.Services
             {
                 try
                 {
-                    await _jsModule.InvokeVoidAsync("stopInfiniteScroll");
+                    await _jsModule.InvokeVoidAsync("stopInfiniteScroll", _tableContainer);
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Ошибка остановки бесконечного скролла: {ex.Message}");
+                    Console.WriteLine($"Ошибка остановки скролла: {ex.Message}");
                 }
             }
         }
@@ -224,6 +224,7 @@ namespace CleaningAppWeb.Components.Services
             {
                 try
                 {
+                    await _jsModule.InvokeVoidAsync("stopInfiniteScroll", _tableContainer);
                     await _jsModule.DisposeAsync();
                 }
                 catch (Exception ex)

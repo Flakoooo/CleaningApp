@@ -15,9 +15,10 @@
     <div class="filter-choices">
         @foreach (var value in _values)
         {
-            <div class="filter-choice px-2 py-1 rounded-1 fs-5" 
-                 @onclick="() => SelectValue(value)">
+            <div class="filter-choice px-2 py-1 rounded-1 fs-5">
                 <Checkbox Checked="@SelectedValues.Contains(value)"
+                          OnClick="() => SelectValue(value)"
+                          Width="w-100"
                           DisplayText="@value.GetDisplayInfo()" />
             </div>
         }

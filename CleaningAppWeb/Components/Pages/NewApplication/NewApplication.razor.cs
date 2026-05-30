@@ -301,18 +301,12 @@ namespace CleaningAppWeb.Components.Pages.NewApplication
 
             var result = await CleaningApplicationsService.CreateNewApplicationAsync(CreateRequest);
 
-            if (!string.IsNullOrWhiteSpace(result))
-            {
-                _createTextResult = result;
+            _createTextResult = !string.IsNullOrWhiteSpace(result) ? result : "Заявка успешно создана!";
 
-                _resultTextCts?.Cancel();
-                _resultTextCts = new CancellationTokenSource();
+            _resultTextCts?.Cancel();
+            _resultTextCts = new CancellationTokenSource();
 
-                _ = ClearTextAfterDelay(_resultTextCts.Token);
-                return;
-            }
-
-            _createTextResult = "Заявка успешно создана!";
+            _ = ClearTextAfterDelay(_resultTextCts.Token);
         }
     }
 }
