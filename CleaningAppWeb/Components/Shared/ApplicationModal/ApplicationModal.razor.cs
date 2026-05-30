@@ -60,6 +60,7 @@ namespace CleaningAppWeb.Components.Shared.ApplicationModal
             CleaningApplicationStatus.InWork => "В работе",
             CleaningApplicationStatus.Done => "Выполнена",
             CleaningApplicationStatus.Rated => "Оценена",
+            CleaningApplicationStatus.Expired => "Просрочена",
             _ => _application?.Status.ToString() ?? "Статус"
         };
 

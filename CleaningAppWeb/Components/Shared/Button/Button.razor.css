@@ -5,49 +5,49 @@
 }
 
 .btn-second {
-    background-color: #6B6B6B;
-    border-color: #6B6B6B;
-    color: #FFFFFF;
+    background-color: var(--ca-grey);
+    border-color: var(--ca-grey);
+    color: var(--ca-white);
 }
 
     .btn-second:hover {
-        background-color: color-mix(in srgb, #6B6B6B 70%, #000000 30%);
-        border-color: color-mix(in srgb, #6B6B6B 70%, #000000 30%);
-        color: #FFFFFF;
+        background-color: color-mix(in srgb, var(--ca-grey) 70%, var(--ca-black) 30%);
+        border-color: color-mix(in srgb, var(--ca-grey) 70%, var(--ca-black) 30%);
+        color: var(--ca-white);
     }
 
     .btn-second:active {
-        background-color: #312B2B;
-        border-color: #312B2B;
-        color: #FFFFFF;
+        background-color: var(--ca-black);
+        border-color: var(--ca-black);
+        color: var(--ca-white);
     }
 
     .btn-second:disabled {
-        background-color: #312B2B;
-        border-color: #312B2B;
-        color: #6B6B6B;
+        background-color: var(--ca-black);
+        border-color: var(--ca-black);
+        color: var(--ca-grey);
     }
 
 .btn-main {
-    background-color: #F6D200;
-    border-color: #F6D200;
-    color: #312B2B;
+    background-color: var(--ca-yellow);
+    border-color: var(--ca-yellow);
+    color: var(--ca-black);
 }
 
     .btn-main:hover {
-        background-color: color-mix(in srgb, #F6D200 95%, #000000 5%);
-        border-color: color-mix(in srgb, #F6D200 95%, #000000 5%);
-        color: #312B2B;
+        background-color: color-mix(in srgb, var(--ca-yellow) 90%, var(--ca-black) 10%);
+        border-color: color-mix(in srgb, var(--ca-yellow) 90%, var(--ca-black) 10%);
+        color: var(--ca-black);
     }
 
     .btn-main:active {
-        background-color: color-mix(in srgb, #F6D200 90%, #000000 10%);
-        border-color: color-mix(in srgb, #F6D200 90%, #000000 10%);
-        color: #312B2B;
+        background-color: color-mix(in srgb, var(--ca-yellow) 85%, var(--ca-black) 15%);
+        border-color: color-mix(in srgb, var(--ca-yellow) 85%, var(--ca-black) 15%);
+        color: var(--ca-black);
     }
 
     .btn-main:disabled {
-        background-color: #F6D200;
-        border-color: #F6D200;
-        color: #312B2B;
+        background-color: color-mix(in srgb, var(--ca-yellow) 85%, var(--ca-black) 15%);
+        border-color: color-mix(in srgb, var(--ca-yellow) 85%, var(--ca-black) 15%);
+        color: var(--ca-black);
     }

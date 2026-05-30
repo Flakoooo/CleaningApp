@@ -99,10 +99,10 @@
                 @{
                     var errorText = _errors.GetValueOrDefault("services");
                     <div class="d-flex flex-row gap-2">
-                        <div style="color: #312B2B;">Услуги</div>
+                        <div style="color: var(--ca-black);">Услуги</div>
                         @if (!string.IsNullOrWhiteSpace(errorText))
                         {
-                            <div style="color: #312B2B;">(@errorText)</div>
+                            <div style="color: var(--ca-black);">(@errorText)</div>
                             <i class="bi bi-exclamation-circle text-danger"></i>
                         }
                     </div>
@@ -110,7 +110,7 @@
                 <div class="overflow-y-auto d-flex flex-column ps-2">
                     @if (_availableServices.Count == 0)
                     {
-                        <div style="color: #312B2B;">Доступные услуги отсутствуют</div>
+                        <div style="color: var(--ca-black);">Доступные услуги отсутствуют</div>
                     }
                     else
                     {
@@ -127,7 +127,7 @@
         <div class="w-100 d-flex justify-content-end align-items-center gap-2">
             @if (!string.IsNullOrWhiteSpace(_createTextResult))
             {
-                <div style="color: #312B2B;">@_createTextResult</div>
+                <div style="color: var(--ca-black);">@_createTextResult</div>
             }
             <Button IsMainButton="true" Text="Создать" Style="width: 18%;" OnButtonClick="CreateApplication" />
         </div>

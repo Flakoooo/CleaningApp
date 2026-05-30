@@ -1,5 +1,14 @@
+:root {
+    --ca-white: #FFFFFF;
+    --ca-grey: #6B6B6B;
+    --ca-black: #312B2B;
+    --ca-yellow: #F6D200;
+    --ca-grey-30: #6B6B6B4D;
+    --ca-yellow-30: #F6D2004D;
+}
+
 html, body {
-    background: #FFFFFF;
+    background: var(--ca-white);
     margin: 0;
     padding: 0;
     height: 100%;
@@ -36,60 +45,56 @@ html, body {
 }
 
 .form-label {
-    color: #312B2B;
+    color: var(--ca-black);
 }
 
 .form-control {
-    border: 1px solid #6B6B6B;
-    color: #312B2B;
+    border: 1px solid var(--ca-grey);
+    color: var(--ca-black);
 }
 
     .form-control::placeholder {
-        color: #6B6B6B;
+        color: var(--ca-grey);
     }
 
     .form-control:disabled::placeholder {
-        color: #312B2B;
+        color: var(--ca-black);
     }
 
     .form-control:focus {
-        border-color: #F6D200;
+        border-color: var(--ca-yellow);
         outline: 0;
-        box-shadow: 0 0 0 .25rem #F6D2004D;
+        box-shadow: 0 0 0 .25rem var(--ca-yellow-30);
     }
 
 .form-check-input {
-    border-color: #6B6B6B;
+    border-color: var(--ca-grey);
 }
 
     .form-check-input:checked[type="checkbox"] {
-        background-color: #F6D200;
-        border-color: #F6D200;
+        background-color: var(--ca-yellow);
+        border-color: var(--ca-yellow);
         --bs-form-check-bg-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'><path fill='none' stroke='%23000' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='M6 10l3 3l6-6'/></svg>") !important;
     }
 
     .form-check-input:checked[type="radio"] {
-        background-color: #F6D200;
-        border-color: #F6D200;
+        background-color: var(--ca-yellow);
+        border-color: var(--ca-yellow);
         --bs-form-check-bg-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='2' fill='%23000'/%3e%3c/svg%3e") !important;
     }
 
     .form-check-input:focus {
-        border-color: #F6D200;
+        border-color: var(--ca-yellow);
         outline: 0;
         cursor: pointer;
-        box-shadow: 0 0 0 .25rem #F6D2004D;
+        box-shadow: 0 0 0 .25rem var(--ca-yellow-30);
     }
 
 .input-group-text {
-    color: #F6D200;
-    border: 1px solid #6B6B6B;
-    background-color: #6B6B6B;
+    color: var(--ca-yellow);
+    border: 1px solid var(--ca-grey);
+    background-color: var(--ca-grey);
     padding: 8px;
-}
-
-.invalid-feedback {
-    color: #312B2B;
 }
 
 .cleaner-applications-page {
@@ -98,4 +103,17 @@ html, body {
     display: flex;
     justify-content: center;
     align-items: center;
+}
+
+.block-info-border-top {
+    border-bottom: 1px solid var(--ca-black);
+}
+
+.block-info-border-middle {
+    border-top: 1px solid var(--ca-black);
+    border-bottom: 1px solid var(--ca-black);
+}
+
+.block-info-border-bottom {
+    border-top: 1px solid var(--ca-black);
 }

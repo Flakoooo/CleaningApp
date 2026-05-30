@@ -1,5 +1,5 @@
 ﻿.not-found-page {
-    background-color: #FFFFFF;
+    background-color: var(--ca-white);
     width: 100%;
     height: 100%;
     display: flex;

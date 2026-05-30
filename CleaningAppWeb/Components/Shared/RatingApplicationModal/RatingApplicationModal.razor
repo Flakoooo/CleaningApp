@@ -5,13 +5,13 @@
      class="modal-layout modal-layout-@_modalState-active">
     <div @onclick:stopPropagation="true" class="center-modal rating-modal">
         <div style="font-size: 24px;">Оценка работы</div>
-        <div style="color: #6B6B6B;">Оцените проделанную работу</div>
+        <div style="color: var(--ca-grey);">Оцените проделанную работу</div>
         <div class="d-flex flex-row gap-2" style="font-size: 32px;">
             @for (byte i = 0; i < 5; ++i)
             {
                 var index = (byte)(i + 1);
                 <i class="bi bi-star@(i < RatingRequest.Rating ? "-fill" : string.Empty)"
-                   style="cursor: pointer; color: @(i < RatingRequest.Rating ? "#F6D200" : "#6B6B6B");"
+                   style="cursor: pointer; color: @(i < RatingRequest.Rating ? "var(--ca-yellow)" : "var(--ca-grey)");"
                    @onclick="() => SelectRating(index)"></i>
             }
         </div>

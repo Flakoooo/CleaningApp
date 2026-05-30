@@ -63,45 +63,45 @@
                     @GetStatusTranslation()
                 </div>
                 <div class="block-info-border-top d-flex flex-column">
-                    <IconText Icon="bi-person-fill" IconColor="#F6D200" IconSize="24"
+                    <IconText Icon="bi-person-fill" IconColor="var(--ca-yellow)" IconSize="24"
                               Text="Заказчик:" />
-                    <div style="color: #6B6B6B;">@_application?.ShortClientFullName</div>
+                    <div style="color: var(--ca-grey);">@_application?.ShortClientFullName</div>
                 </div>
                 <div class="block-info-border-middle d-flex flex-column">
-                    <IconText Icon="bi-person-fill" IconColor="#F6D200" IconSize="24"
+                    <IconText Icon="bi-person-fill" IconColor="var(--ca-yellow)" IconSize="24"
                               Text="Исполнитель:" />
-                    <div style="color: #6B6B6B;">@(_application?.Executor is not null ? _application.Executor.ShortFullName : "В поиске")</div>
+                    <div style="color: var(--ca-grey);">@(_application?.Executor is not null ? _application.Executor.ShortFullName : "В поиске")</div>
                 </div>
                 <div class="block-info-border-middle d-flex flex-column">
-                    <IconText Icon="bi-telephone-fill" IconColor="#F6D200" Gap="4"
+                    <IconText Icon="bi-telephone-fill" IconColor="var(--ca-yellow)" Gap="4"
                               Text="Телефон:" />
-                    <div style="color: #6B6B6B;">@_application?.ClientTelephoneNumber</div>
+                    <div style="color: var(--ca-grey);">@_application?.ClientTelephoneNumber</div>
                 </div>
                 <div class="block-info-border-middle d-flex flex-column">
-                    <IconText Icon="bi-building-fill" IconColor="#F6D200" Gap="4"
+                    <IconText Icon="bi-building-fill" IconColor="var(--ca-yellow)" Gap="4"
                               Text="Адрес:" />
-                    <div style="color: #6B6B6B;">@_application?.Office.Address</div>
+                    <div style="color: var(--ca-grey);">@_application?.Office.Address</div>
                 </div>
                 <div class="block-info-border-@(_application?.Status > CleaningApplicationStatus.InWork ? "middle" : "bottom") d-flex flex-column">
-                    <IconText Icon="bi-clock-fill" IconColor="#F6D200" Gap="4"
+                    <IconText Icon="bi-clock-fill" IconColor="var(--ca-yellow)" Gap="4"
                               Text="Дата и время:" />
-                    <div style="color: #6B6B6B;">@_application?.CleaningDate @_application?.CleaningTime</div>
+                    <div style="color: var(--ca-grey);">@_application?.CleaningDate @_application?.CleaningTime</div>
                 </div>
                 @if (_application?.Status > CleaningApplicationStatus.InWork)
                 {
                     <div class="block-info-border-bottom d-flex flex-column">
-                        <div style="color: #312B2B;">Оценка:</div>
+                        <div style="color: var(--ca-black);">Оценка:</div>
                         @if (_application?.Status is CleaningApplicationStatus.Done)
                         {
-                            <div style="color: #6B6B6B;">@(_currentRole is RoleType.Cleaner ? "Ожидает оценки" : "Можно оценить работу!")</div>
+                            <div style="color: var(--ca-grey);">@(_currentRole is RoleType.Cleaner ? "Ожидает оценки" : "Можно оценить работу!")</div>
                         }
                         else if (_application?.Status is CleaningApplicationStatus.Rated)
                         {
-                            <div class="d-flex flex-row" style="color: #312B2B; font-size: 24px;">
+                            <div class="d-flex flex-row" style="color: var(--ca-black); font-size: 24px;">
                                 @for (byte i = 0; i < 5; ++i)
                                 {
                                     <i class="bi bi-star@(i < _application.Rating ? "-fill" : string.Empty)"
-                                           style="color: @(i < _application.Rating ? "#F6D200" : "#6B6B6B");">
+                                           style="color: @(i < _application.Rating ? "var(--ca-yellow)" : "var(--ca-grey)");">
                                     </i>
                                 }
                             </div>
@@ -113,7 +113,7 @@
         <div class="application-modal-buttons">
             @if (!string.IsNullOrWhiteSpace(_updateStatusTextResult))
             {
-                <div style="color: #312B2B;">@_updateStatusTextResult</div>
+                <div style="color: var(--ca-black);">@_updateStatusTextResult</div>
             }
             @if (_currentRole is RoleType.Cleaner)
             {

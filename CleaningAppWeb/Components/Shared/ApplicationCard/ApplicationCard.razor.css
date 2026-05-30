@@ -1,18 +1,18 @@
 ﻿.application {
-    background: #FFFFFF;
+    background: var(--ca-white);
     transition: background-color 0.3s ease;
     cursor: pointer;
-    color: #312B2B;
+    color: var(--ca-black);
     font-size: 24px;
-    border-bottom: 1px solid #6B6B6B4D;
+    border-bottom: 1px solid var(--ca-grey-30);
 }
 
     .application:hover {
-        background: color-mix(in srgb, #FFFFFF 90%, #000000 10%);
+        background: color-mix(in srgb, var(--ca-white) 90%, var(--ca-black) 10%);
     }
 
     .application:active {
-        background: color-mix(in srgb, #FFFFFF 80%, #000000 20%);
+        background: color-mix(in srgb, var(--ca-white) 80%, var(--ca-black) 20%);
     }
 
     .application:last-child {
@@ -25,17 +25,4 @@
     justify-content: center;
     align-items: center;
     gap: 8px;
-}
-
-.block-info-border-top {
-    border-bottom: 1px solid #312B2B;
-}
-
-.block-info-border-middle {
-    border-top: 1px solid #312B2B;
-    border-bottom: 1px solid #312B2B;
-}
-
-.block-info-border-bottom {
-    border-top: 1px solid #312B2B;
 }

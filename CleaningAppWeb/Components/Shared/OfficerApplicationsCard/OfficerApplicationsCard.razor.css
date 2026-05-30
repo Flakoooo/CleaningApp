@@ -1,8 +1,8 @@
 ﻿.applications-card {
     height: 80%;
     width: 75%;
-    background: #FFFFFF;
-    border: 4px solid #6B6B6B;
+    background: var(--ca-white);
+    border: 4px solid var(--ca-grey);
     border-radius: 16px;
     overflow: hidden;
 }
@@ -13,11 +13,11 @@
     align-items: center;
     height: 10%;
     font-size: 32px;
-    background: #F6D200;
+    background: var(--ca-yellow);
 }
 
 .applications-card-list {
-    background: #FFFFFF;
+    background: var(--ca-white);
     height: 90%;
     border-radius: 8px;
     overflow-y: auto;
